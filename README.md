@@ -1,6 +1,16 @@
 # stringMLST
 Fast k-mer based tool for multi locus sequence typing (MLST)
 stringMLST is a tool for detecting the MLST of an isolate directly from the genome sequencing reads. stringMLST predicts the ST of an isolate in a completely assembly and alignment free manner. The tool is designed in a light-weight, platform-independent fashion with minimum dependencies.
+
+Reference
+*http://jordan.biology.gatech.edu/page/software/stringmlst/*
+
+Abstract
+*http://bioinformatics.oxfordjournals.org/content/early/2016/09/06/bioinformatics.btw586.short?rss=1*
+
+Application Note
+*http://bioinformatics.oxfordjournals.org/content/early/2016/09/06/bioinformatics.btw586.full.pdf+html*
+
 ## Usage for Example Read Files (Neisseria meningitidis)
 
 * Download stringMLST.py, example read files (ERR026529, ERR027250, ERR036104) and the dataset for Neisseria meningitidis (Neisseria_spp.zip).
