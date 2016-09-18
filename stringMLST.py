@@ -386,11 +386,47 @@ def getMaxCount(alleleCount,fileName):
 	msgs = "Second Max Support :" + fileName + " : " + str(secondSupport) 
 	logging.debug(msgs)
 	return finalProfileCount
-					
+
+#############################################################
+# Function   : findST
+# Input      : allelic profile for one sample and profiles for all STs
+# Output     : ST number, or 0 if no ST match was found
+# Description: Finds the ST number which best matches the given sample profile.
+#############################################################
 def findST(finalProfile,stProfile):
+	if not stProfile:
+		return 0
+	oneProfile = stProfile.itervalues().next()
+
+	# The gene names in finalProfile may not exactly match those in stProfile. To deal with this,
+	# each finalProfile gene is associated with the best matching gene in the ST profiles.
+	finalGeneToSTGene = {}
+	profileGenes = oneProfile.keys()
+	for finalGene in finalProfile.keys():
+		if finalGene in profileGenes:  # exact match is preferable
+			finalGeneToSTGene[finalGene] = finalGene
+		else:  # failing an exact match, look for a case-sensitive containment
+			for profileGene in profileGenes:
+				if finalGene in profileGene:
+					finalGeneToSTGene[finalGene] = profileGene
+					break
+		if finalGene not in finalGeneToSTGene:  # if there's still no match, try a case-insensitive containment
+			for profileGene in profileGenes:
+				if finalGene.lower() in profileGene.lower():
+					finalGeneToSTGene[finalGene] = profileGene
+					break
+		if finalGene not in finalGeneToSTGene:
+			print 'ERROR: gene names in config file do not match gene names in profile file'
+			exit(0)
+	transformedFinalProfile = {}
+	for gene, allele in finalProfile.iteritems():
+		transformedFinalProfile[finalGeneToSTGene[gene]] = allele
+
+	# Find the best matching ST, considering only the genes in the sample's profile. This is to
+	# allow for superfluous columns in the ST profile.
 	logging.debug("findST")
-	for stNum in stProfile:
-		if stProfile[stNum] == finalProfile:
+	for stNum, profile in stProfile.iteritems():
+		if all(x in profile.items() for x in transformedFinalProfile.items()):
 			return stNum
 	return 0
 
@@ -435,7 +471,7 @@ def loadSTfromFile(profileF):
 		for line in lines:
 			pro = line.rstrip().split('\t')
 			l = {}
-			for locus in heads[1:-1]:
+			for locus in heads[1:]:
 				try:
 					l[locus] = pro[index[locus]]
 				except:
