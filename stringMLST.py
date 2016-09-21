@@ -527,11 +527,12 @@ def printResults(results,output_filename,overwrite,timeDisp):
 
 """Returns the reverse complement of the sequence"""		
 def reverseComplement(seq):
+	seqU  = seq.upper()
 	seq_dict = {'A':'T','T':'A','G':'C','C':'G','Y':'R','R':'Y','S':'S','W':'W','K':'M','M':'K'}
 	try:
-		return "".join([seq_dict[base] for base in reversed(seq)])
+		return "".join([seq_dict[base] for base in reversed(seqU)])
 	except:
-		strn = "Reverse Complement Error:" + seq
+		strn = "Reverse Complement Error:" + seqU
 		logging.debug(strn)
 		pass
 		
