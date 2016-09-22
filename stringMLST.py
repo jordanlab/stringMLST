@@ -787,6 +787,7 @@ Usage
 [-s][--single]
 [-c][--config]
 [-P][--prefix]
+[-a]
 [-k]
 [-o output_filename][--output output_filename]
 [-x][--overwrite]
@@ -830,6 +831,8 @@ Optional arguments
 	if the quality of reads is not very good.
 -P,--prefix = <prefix>
 	Prefix for db and log files to be created(Default = kmer). Also you can specify folder where you want the dbb to be created.
+-a
+        File location to write build log
 -h,--help
   Prints the help manual for this application
 
@@ -1002,6 +1005,8 @@ Optional arguments
 -x,--overwrite
   By default stringMLST appends the results to the output_filename if same name is used.
   This argument overwrites the previously specified output file.
+-a
+  File location to write run log
 -t
   Time for each analysis will also be reported.
 -r
@@ -1032,12 +1037,13 @@ config = None
 timeDisp = False
 reads = False
 dbPrefix = 'kmer'
+log =''
 k = 35
 
 #print 'ARGV      :', sys.argv[1:]
 #exit(0)
 """Input arguments"""
-options, remainder = getopt.getopt(sys.argv[1:], 'o:x1:2:k:l:bd:pshP:c:trv', [
+options, remainder = getopt.getopt(sys.argv[1:], 'o:x1:2:k:l:bd:pshP:c:trva:', [
  'buildDB',
  'predict',
  'output=',
@@ -1093,6 +1099,8 @@ for opt, arg in options:
 		paired = False
 	elif opt in ('-t'):
 		timeDisp = True
+	elif opt in ('-a'):
+		log = arg
 	elif opt in ('-r'):
 		reads = True
 	elif opt in ('-v'):
@@ -1105,7 +1113,8 @@ for opt, arg in options:
 checkParams(buildDB,predict,config,k,listMode,list,batch,dir,fastq1,fastq2,paired,dbPrefix)			
 if buildDB == True:
 	try:
-		log = dbPrefix+'.log'
+                if not log:
+                        log = dbPrefix+'.log'
 	except TypeError:
 		log = 'kmer.log'
 	logging.basicConfig(filename=log,level=logging.DEBUG,format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
@@ -1113,13 +1122,15 @@ if buildDB == True:
 	if os.path.isfile(config):
 		print "Info: Making DB for k = ",k
 		print "Info: Making DB with prefix =",dbPrefix
+		print "Info: Log file written to ",log
 		makeCustomDB(config,k,dbPrefix)
 	else:
 		print "Error: The input config file "+config +" does not exist."
 	
 elif predict == True:
 	try:
-		log = dbPrefix+'.log'
+                if not log:
+		        log = dbPrefix+'.log'
 	except TypeError:
 		log = 'kmer.log'
 	logging.basicConfig(filename=log,level=logging.DEBUG,format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
