@@ -39,31 +39,31 @@ profile	Neisseria_spp/neisseria.txt
 
 ### Predict:
 
-* Extract all the read files to a folder (say ./example/) such that fastq files are in the folder as :
+* Download example read datasets with bash script download_example_reads.sh . After download is complete, tests/fastqs folder will contain the following files:
 ```
-example/ERR026529_1.fastq
-example/ERR026529._2fastq
-example/ERR027250_1.fastq
-example/ERR027250_2.fastq
-example/ERR036104_1.fastq
-example/ERR036104_2.fastq
+tests/fastqs/ERR026529_1.fastq
+tests/fastqs/ERR026529_2.fastq
+tests/fastqs/ERR027250_1.fastq
+tests/fastqs/ERR027250_2.fastq
+tests/fastqs/ERR036104_1.fastq
+tests/fastqs/ERR036104_2.fastq
 ```
 * Predict:
 
 #### Single sample :
 ```
-./stringMLST.py --predict -1 example/ERR026529_1.fastq -2 example/ERR026529_2.fastq -k 35 -P NM 	
+./stringMLST.py --predict -1 tests/fastqs/ERR026529_1.fastq -2 tests/fastqs/ERR026529_2.fastq -k 35 -P NM 	
 ```
 #### Batch mode (all the samples together):
 ```
-./stringMLST.py --predict -d ./example/ -k 35 -P NM	
+./stringMLST.py --predict -d ./tests/fastqs/ -k 35 -P NM	
 ```
 #### List mode:
 Create a list file (list_paired.txt) as :
 ```
-example/ERR026529_1.fastq	example/ERR026529_2.fastq
-example/ERR027250_1.fastq	example/ERR027250_2.fastq
-example/ERR036104_1.fastq	example/ERR036104_2.fastq
+tests/fastqs/ERR026529_1.fastq	tests/fastqs/ERR026529_2.fastq
+tests/fastqs/ERR027250_1.fastq	tests/fastqs/ERR027250_2.fastq
+tests/fastqs/ERR036104_1.fastq	tests/fastqs/ERR036104_2.fastq
 ```
 Run the tool as:
 ```
@@ -71,7 +71,7 @@ Run the tool as:
 ```
 #### Working with gziped files
 ```
-stringMLST.py --predict -1 example/ERR026529_1.fq.gz -2 example/ERR026529_2.fq.gz -p --prefix <prefix for the database> -k <k-mer size> -o <output file name>
+stringMLST.py --predict -1 tests/fastqs/ERR026529_1.fq.gz -2 tests/fastqs/ERR026529_2.fq.gz -p --prefix <prefix for the database> -k <k-mer size> -o <output file name>
 ```
 ## Usage Documentation
 
