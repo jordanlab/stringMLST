@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#!/usr/bin/env python
 
 v = """ stringMLST v0.2 (updated : July 1,2016) """
 
@@ -530,7 +530,7 @@ def printResults(results,output_filename,overwrite,timeDisp):
 		else:
 			outfile = open(output_filename, "w")
 	heading = "Sample"	
-	for head in results[results.keys()[0]]:
+	for head in sorted(results[results.keys()[0]]):
 		if head == 'ST' or head == 't':
 			continue
 		heading += '\t' + head
@@ -544,7 +544,7 @@ def printResults(results,output_filename,overwrite,timeDisp):
 		print heading
 	for s in results:
 		sample = s
-		for l in results[s]:
+		for l in sorted(results[s]):
 			if l == 'ST' or l == 't':
 				continue
 			sample += '\t'+results[s][l]
