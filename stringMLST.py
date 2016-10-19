@@ -422,6 +422,10 @@ def findST(finalProfile,stProfile):
 	for gene, allele in finalProfile.iteritems():
 		transformedFinalProfile[finalGeneToSTGene[gene]] = allele
 
+        # Check to see if the dictionary is empty, if so then means no allele were found at all
+        if bool(transformedFinalProfile) == False:
+                return 0
+        
 	# Find the best matching ST, considering only the genes in the sample's profile. This is to
 	# allow for superfluous columns in the ST profile.
 	logging.debug("findST")
