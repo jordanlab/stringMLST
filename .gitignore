@@ -15,3 +15,6 @@ Thumbs.db
 
 # Compiled C++ files
 *.out
+
+# Test data
+tests/

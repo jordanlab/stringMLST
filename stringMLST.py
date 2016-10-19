@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-v = """ stringMLST v0.2.1 (updated : October 19,2016) """
+v = """ stringMLST v0.3-dev """
 
 """
 LICENSE TERMS FOR stringMLST
