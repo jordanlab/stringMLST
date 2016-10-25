@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-v = """ stringMLST v0.2.1 (updated : October 19,2016) """
+v = """ stringMLST v0.2.2 (updated : October 25,2016) """
 
 """
 LICENSE TERMS FOR stringMLST
@@ -80,6 +80,7 @@ import os
 import time
 import ast
 import gzip
+import re
 
 """
 The program has 3 basic modes :
@@ -363,16 +364,25 @@ def getMaxCount(alleleCount,fileName):
 			if alleleCount[loc][num] >= n:
 				m = n
 				n = alleleCount[loc][num]
-		max_n[loc] = n
+		if n-m < fuzzy:
+			alleleCount[loc][num] = str(alleleCount[loc][num])+'*'	
+			max_n[loc] = str(n)+'*'
+		else:
+			max_n[loc] = n
 		secondMax[loc] = m
 	for loc in alleleCount:
 		maxSupport[loc] = {}
 		secondSupport[loc] = {}
 		num_max = []
 		num_max2 = []
+		compare = int(re.sub("\*$","",str(max_n[loc])))
 		for num in alleleCount[loc]:
-			if 	alleleCount[loc][num] == max_n[loc]:
-				num_max.append(num)
+			if 	alleleCount[loc][num] == compare:
+				if "*" in str(max_n[loc]):
+					insert = num + '*'
+					num_max.append(insert)
+				else:
+					num_max.append(num)
 				maxSupport[loc][num] = max_n[loc]
 			if 	alleleCount[loc][num] == secondMax[loc]:
 				num_max2.append(num)
@@ -381,7 +391,7 @@ def getMaxCount(alleleCount,fileName):
 			finalProfileCount[loc] = num_max[0]
 		except:
 			finalProfileCount[loc] = '0'
-	msgs = "Max Support :" + fileName + " : " + str(maxSupport) 
+	msgs = "Max Support :" + fileName + " : " + str(maxSupport)  
 	logging.debug(msgs)
 	msgs = "Second Max Support :" + fileName + " : " + str(secondSupport) 
 	logging.debug(msgs)
@@ -420,6 +430,7 @@ def findST(finalProfile,stProfile):
 			exit(0)
 	transformedFinalProfile = {}
 	for gene, allele in finalProfile.iteritems():
+		allele = re.sub("\*","",allele)
 		transformedFinalProfile[finalGeneToSTGene[gene]] = allele
 
         # Check to see if the dictionary is empty, if so then means no allele were found at all
@@ -1043,11 +1054,12 @@ reads = False
 dbPrefix = 'kmer'
 log =''
 k = 35
+fuzzy = 300
 
 #print 'ARGV      :', sys.argv[1:]
 #exit(0)
 """Input arguments"""
-options, remainder = getopt.getopt(sys.argv[1:], 'o:x1:2:k:l:bd:pshP:c:trva:', [
+options, remainder = getopt.getopt(sys.argv[1:], 'o:x1:2:k:l:bd:pshP:c:trva:z:', [
  'buildDB',
  'predict',
  'output=',
@@ -1062,7 +1074,8 @@ options, remainder = getopt.getopt(sys.argv[1:], 'o:x1:2:k:l:bd:pshP:c:trva:', [
  'directory=',
  'paired',
  'single',
- 'help',])
+ 'help',
+ 'fuzzy'])
 
 for opt, arg in options:
 	if opt in ('-o', '--output'):
@@ -1110,6 +1123,8 @@ for opt, arg in options:
 	elif opt in ('-v'):
 		print(v)
 		exit(0)
+	elif opt in ('-z','--fuzzy'):
+		fuzzy = int(arg)
 	elif opt in ('-h','--help'):
 		print helpText
 		exit(0)
