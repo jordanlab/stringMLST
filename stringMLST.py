@@ -952,6 +952,7 @@ Usage
 [-s][--single]
 [-c][--config]
 [-P][--prefix]
+[-z][--fuzzy]
 [-k]
 [-o output_filename][--output output_filename]
 [-x][--overwrite]
@@ -1022,6 +1023,9 @@ Optional arguments
 -k = <kmer_length>
   Kmer length for which the db was created(Default k = 35). Could be verified by looking at the name of the db file. 
   Could be used if the reads are of very bad quality or have a lot of N's.
+-z,--fuzzy = <fuzzy theshold int>
+	Threshold for reporting a fuzzy match (Default=300). For higher coverage reads this the threshold should be set higher to avoid
+	indicating fuzzy match when exact match was more likely. For lower coverage reads, threshold of <100 is recommended
 -o,--output = <output_filename>
   Prints the output to a file instead of stdio.
 -x,--overwrite
@@ -1131,7 +1135,11 @@ for opt, arg in options:
 		print(v)
 		exit(0)
 	elif opt in ('-z','--fuzzy'):
-		fuzzy = int(arg)
+		try:
+			fuzzy = int(arg)
+		except ValueError:
+			print "You provided '"+ arg +"' for your fuzziness threshold, which is not an integer value"
+			exit(0)
 	elif opt in ('-h','--help'):
 		print helpText
 		exit(0)
