@@ -16,47 +16,48 @@ Application Note
 * Download stringMLST.py, example read files (ERR026529, ERR027250, ERR036104) and the dataset for Neisseria meningitidis (Neisseria_spp.zip).
 ### Build database:
 
-* Extract the dataset such that the locus and profile file are in Neisseria_spp folder.
+```
+# Add dir to path
+export PATH=$PATH:$PWD
+# Will connect to EBI's SRA servers
+download_example_reads.sh
+````
+
+* Extract the MLST loci dataset.
+
+`unzip datasets/Neisseria_spp.zip -d datasets`
+
 * Create or use a config file specifying the location of all the locus and profile files.
 Example config file (Neisseria_spp/config.txt):
+
 ```
 [loci]
-abcZ	Neisseria_spp/abcZ.fa
-adk	Neisseria_spp/adk.fa
-aroE	Neisseria_spp/aroE.fa
-fumC	Neisseria_spp/fumC.fa
-gdh	Neisseria_spp/gdh.fa
-pdhC	Neisseria_spp/pdhC.fa
-pgm	Neisseria_spp/pgm.fa
+abcZ	datasets/Neisseria_spp/abcZ.fa
+adk	datasets/Neisseria_spp/adk.fa
+aroE	datasets/Neisseria_spp/aroE.fa
+fumC	datasets/Neisseria_spp/fumC.fa
+gdh	datasets/Neisseria_spp/gdh.fa
+pdhC	datasets/Neisseria_spp/pdhC.fa
+pgm	datasets/Neisseria_spp/pgm.fa
 [profile]
-profile	Neisseria_spp/neisseria.txt
+profile	datasets/Neisseria_spp/neisseria.txt
 ```
 
 * Run stringMLST.py --buildDB to create DB. Choose a k value and prefix (optional).
+
 ```
-./stringMLST.py --buildDB -c Neisseria_spp/config.txt -k 35 -P NM	
+stringMLST.py --buildDB -c databases/Neisseria_spp/config.txt -k 35 -P NM	
 ```
 
 ### Predict:
 
-* Download example read datasets with bash script download_example_reads.sh . After download is complete, tests/fastqs folder will contain the following files:
-```
-tests/fastqs/ERR026529_1.fastq
-tests/fastqs/ERR026529_2.fastq
-tests/fastqs/ERR027250_1.fastq
-tests/fastqs/ERR027250_2.fastq
-tests/fastqs/ERR036104_1.fastq
-tests/fastqs/ERR036104_2.fastq
-```
-* Predict:
-
 #### Single sample :
 ```
-./stringMLST.py --predict -1 tests/fastqs/ERR026529_1.fastq -2 tests/fastqs/ERR026529_2.fastq -k 35 -P NM 	
+stringMLST.py --predict -1 tests/fastqs/ERR026529_1.fastq -2 tests/fastqs/ERR026529_2.fastq -k 35 -P NM 	
 ```
 #### Batch mode (all the samples together):
 ```
-./stringMLST.py --predict -d ./tests/fastqs/ -k 35 -P NM	
+stringMLST.py --predict -d ./tests/fastqs/ -k 35 -P NM	
 ```
 #### List mode:
 Create a list file (list_paired.txt) as :
@@ -67,11 +68,11 @@ tests/fastqs/ERR036104_1.fastq	tests/fastqs/ERR036104_2.fastq
 ```
 Run the tool as:
 ```
-./stringMLST.py --predict -l list_paired.txt -k 35 -P NM
+stringMLST.py --predict -l list_paired.txt -k 35 -P NM
 ```
 #### Working with gziped files
 ```
-stringMLST.py --predict -1 tests/fastqs/ERR026529_1.fq.gz -2 tests/fastqs/ERR026529_2.fq.gz -p --prefix <prefix for the database> -k <k-mer size> -o <output file name>
+stringMLST.py --predict -1 tests/fastqs/ERR026529_1.fq.gz -2 tests/fastqs/ERR026529_2.fq.gz -p -P NM -k 35 -o ST_NM.txt
 ```
 ## Usage Documentation
 
@@ -85,6 +86,20 @@ stringMLST's workflow is divided into two routines:
 *	Single sample mode - for running stringMLST on a single sample
 *	Batch mode - for running stringMLST on all the FASTQ files present in a directory
 *	List mode - for running stringMLST on all the FASTQ files provided in a list file
+
+**stringMLST expects paired end reads to be in [Illumina naming convention](http://support.illumina.com/help/SequencingAnalysisWorkflow/Content/Vault/Informatics/Sequencing_Analysis/CASAVA/swSEQ_mCA_FASTQFiles.htm), minimally ending with _1.fq and _2.fq to delineate read1 and read2:**
+
+*Periods (.) are disallowed delimiters except for file extensions *
+
+````
+Illumina FASTQ files use the following naming scheme:
+
+<sample name>_<barcode sequence>_L<lane (0-padded to 3 digits)>_R<read number>_<set number (0-padded to 3 digits>.fastq.gz
+
+For example, the following is a valid FASTQ file name:
+
+NA10831_ATCACG_L002_R1_001.fastq.gz
+```
 
 ### Installation
 
@@ -218,6 +233,7 @@ A sample list file for single-end sample looks like the following.
 <full path of sample n fastq file>
 ```
 A sample list file for paired-end sample looks like the following.
+
 ```
 <full path of sample 1 fastq file 1>	<full path of sample 1 fastq file 2>
 <full path of sample 2 fastq file 1>	<full path of sample 2 fastq file 2>
@@ -226,6 +242,7 @@ A sample list file for paired-end sample looks like the following.
 .
 <full path of sample n fastq file 1>	<full path of sample n fastq file 2>
 ```
+
 Once the user has the list file, he can directly use the tool.
 
 *Paired-end samples:*

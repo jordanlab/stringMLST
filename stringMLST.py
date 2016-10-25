@@ -802,6 +802,7 @@ Usage
 [-s][--single]
 [-c][--config]
 [-P][--prefix]
+[-z][--fuzzy]
 [-a]
 [-k]
 [-o output_filename][--output output_filename]
@@ -846,6 +847,9 @@ Optional arguments
 	if the quality of reads is not very good.
 -P,--prefix = <prefix>
 	Prefix for db and log files to be created(Default = kmer). Also you can specify folder where you want the dbb to be created.
+-z,--fuzzy = <fuzzy theshold int>
+	Threshold for reporting a fuzzy match (Default=300). For higher coverage reads this the threshold should be set higher to avoid
+	indicating fuzzy match when exact match was more likely. For lower coverage reads, threshold of <100 is recommended
 -a
         File location to write build log
 -h,--help
@@ -928,6 +932,9 @@ Example usage:
 
 4) Multiple samples list mode, paired end
    ./stringMLST.py --predict -l data/listFile.txt -p --prefix NM -k 35 -o output.txt -x
+
+5) Single, high coverage sample, paired end
+ ./stringMLST.py --predict -1 data/Neisseria/ERR017001_1.fastq -2 data/Neisseria/ERR017001_2.fastq -p --prefix NM -k 35 -z 1000 -o output.txt
 
 """			
 
