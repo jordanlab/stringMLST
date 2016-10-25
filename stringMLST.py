@@ -892,8 +892,8 @@ Optional arguments
 -k = <kmer_length>
   Kmer length for which the db was created(Default k = 35). Could be verified by looking at the name of the db file. 
   Could be used if the reads are of very bad quality or have a lot of N's.
--z,--fuzzy = <fuzzy theshold int>
-	Threshold for reporting a fuzzy match (Default=300). For higher coverage reads this the threshold should be set higher to avoid
+-z,--fuzzy = <fuzzy threshold int>
+	Threshold for reporting a fuzzy match (Default=300). For higher coverage reads this threshold should be set higher to avoid
 	indicating fuzzy match when exact match was more likely. For lower coverage reads, threshold of <100 is recommended
 -o,--output = <output_filename>
   Prints the output to a file instead of stdio.
@@ -1023,8 +1023,8 @@ Optional arguments
 -k = <kmer_length>
   Kmer length for which the db was created(Default k = 35). Could be verified by looking at the name of the db file. 
   Could be used if the reads are of very bad quality or have a lot of N's.
--z,--fuzzy = <fuzzy theshold int>
-	Threshold for reporting a fuzzy match (Default=300). For higher coverage reads this the threshold should be set higher to avoid
+-z,--fuzzy = <fuzzy threshold int>
+	Threshold for reporting a fuzzy match (Default=300). For higher coverage reads this threshold should be set higher to avoid
 	indicating fuzzy match when exact match was more likely. For lower coverage reads, threshold of <100 is recommended
 -o,--output = <output_filename>
   Prints the output to a file instead of stdio.
