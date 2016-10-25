@@ -847,9 +847,6 @@ Optional arguments
 	if the quality of reads is not very good.
 -P,--prefix = <prefix>
 	Prefix for db and log files to be created(Default = kmer). Also you can specify folder where you want the dbb to be created.
--z,--fuzzy = <fuzzy theshold int>
-	Threshold for reporting a fuzzy match (Default=300). For higher coverage reads this the threshold should be set higher to avoid
-	indicating fuzzy match when exact match was more likely. For lower coverage reads, threshold of <100 is recommended
 -a
         File location to write build log
 -h,--help
@@ -895,6 +892,9 @@ Optional arguments
 -k = <kmer_length>
   Kmer length for which the db was created(Default k = 35). Could be verified by looking at the name of the db file. 
   Could be used if the reads are of very bad quality or have a lot of N's.
+-z,--fuzzy = <fuzzy theshold int>
+	Threshold for reporting a fuzzy match (Default=300). For higher coverage reads this the threshold should be set higher to avoid
+	indicating fuzzy match when exact match was more likely. For lower coverage reads, threshold of <100 is recommended
 -o,--output = <output_filename>
   Prints the output to a file instead of stdio.
 -x,--overwrite
@@ -1082,7 +1082,7 @@ options, remainder = getopt.getopt(sys.argv[1:], 'o:x1:2:k:l:bd:pshP:c:trva:z:',
  'paired',
  'single',
  'help',
- 'fuzzy'])
+ 'fuzzy='])
 
 for opt, arg in options:
 	if opt in ('-o', '--output'):
