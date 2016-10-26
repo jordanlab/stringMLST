@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-v = """ stringMLST v0.2.2 (updated : October 25,2016) """
+v = """ stringMLST v0.3 (updated : October 26, 2016) """
 
 """
 LICENSE TERMS FOR stringMLST
@@ -69,9 +69,7 @@ even if such holder has been advised of the possibility of such damages.
 
 """
 
-
-
-"""Required libraries """
+"""Required libraries for base program """
 
 import getopt
 import sys
@@ -81,6 +79,9 @@ import time
 import ast
 import gzip
 import re
+import tempfile
+import shutil
+
 
 """
 The program has 3 basic modes :
@@ -209,7 +210,7 @@ def singleSampleTool(fastq1,fastq2,paired,k,results):
 			string = "No k-mer matches were found for the sample "+fastq1+".  Probable cause of the error:  low quality data/too many N's in the data"
 			logging.error("singleSampleTool : "+string)
 			print string
-#			exit(0)
+
 
 	logging.debug("singleSampleTool : weightedProfile start")
 	weightedProfile = weightedProf(profileCount,weightDict)
@@ -246,7 +247,7 @@ def singleFileTool(fastq,k):
 		logging.debug("singleFileTool : fastq")
 		non_overlapping_window = 1
 		finalProfile = {}
-		t1 = time.time()
+		 	t1 = time.time()
 		fileExplorer(fastq, k, non_overlapping_window)
 		t3 = time.time()
 	else:
@@ -529,6 +530,72 @@ def loadWeightDict(weightFile):
 				weightDict[loc] = {}
 			weightDict[loc][allele] = float(array[1])
 	return weightDict	
+#############################################################
+# Function   : loadConfig
+# Input      : config file path from getopts
+# Output     : Updates configDict
+# Description: Used to find allele fasta files for getCoverage
+#############################################################						
+def loadConfig(config):
+	global configDict
+	configDict = {}
+	with open(config) as configFile:
+		lines = configFile.readlines()
+		head = ''
+		for line in lines:
+			if line.rstrip() == '':
+				continue
+			if line.rstrip() == '[loci]':
+				head = 'loci'
+				configDict[head] = {}
+			elif line.rstrip() == '[profile]':
+				head = 'profile'
+				configDict[head] = {}
+			else:
+				arr = line.strip().split()
+				configDict[head][arr[0]] = arr[1]
+	
+	for head in configDict:
+		for element in configDict[head]:
+			if not os.path.isfile(configDict[head][element]):
+				print 'ERROR: %s file does not exist at %s' % (element ,configDict[head][element])
+				exit(0)
+	return configDict	
+#############################################################
+# Function   : getCoverage
+# Input      : results dictionary
+# Output     : Updates results to include coverage info
+#############################################################	
+def getCoverage(results):
+	tmpdir = tempfile.mkdtemp()
+	for sample in results:
+		file = tmpdir +'/'+ sample + '.fasta'
+		bed = tmpdir +'/'+ sample + '.bed'
+		sortedFile = tmpdir +'/'+ sample + '.sorted'
+		covOut = tmpdir +'/'+ sample + '.out'
+		with open(file,'w') as tmpFasta:
+			with open(bed,'w') as bedFile:
+				for gene in configDict['loci']:
+					genes = Fasta(configDict['loci'][gene])
+					allele = gene+'_'+re.sub("\*","",str(results[sample][gene]))
+					tmpFasta.write('>'+gene+'\n')
+					bedFile.write(gene+'\t0\t'+str(len(genes[allele]))+'\n')
+					for line in genes[allele]:
+						tmpFasta.write(str(line)+'\n')
+		cmdIndex = "bwa index %s 2>/dev/null"%(file)
+		os.system(cmdIndex)
+		readBWA = sample+'_reads.fq'
+		cmdBwaMem = "bwa mem %s %s 2>/dev/null| samtools view -uS - | samtools sort - -o %s"%(file,readBWA,sortedFile)
+		os.system(cmdBwaMem)
+		cmdCov = "bedtools coverage -a %s -b %s > %s"%(bed,sortedFile,covOut)
+		os.system(cmdCov)
+		with open(covOut,'r') as cov:
+			for line in cov.readlines():
+				records = line.rstrip().rsplit('\t')
+				gene = records[0]
+				geneCov = float(records[6]) * 100
+				results[sample][gene] = results[sample][gene] + " (" + str("%.2f" % geneCov) + ")"
+	shutil.rmtree(tmpdir)
 
 """Prints the results in the format asked by the user."""
 
@@ -558,7 +625,7 @@ def printResults(results,output_filename,overwrite,timeDisp):
 	else:
 		print heading
 	for s in results:
-		sample = s
+		sample = s.split("_")[0]
 		for l in sorted(results[s]):
 			if l == 'ST' or l == 't':
 				continue
@@ -736,9 +803,13 @@ def checkParams(buildDB,predict,config,k,listMode,list,batch,dir,fastq1,fastq2,p
 		print "Select either predict or buildDB module"
 		exit(0)
 	if predict == True:
-		if config != None:
+		if config != None and coverage == False:
 			print helpTextSmall
 			print "Config parameter is not required for predict mode."
+			exit(0)
+		elif config is None and coverage == True:
+			print helpTextSmall
+			print "Config parameter is required to for coverage prediction"
 			exit(0)
 		if not os.path.isfile(dbPrefix+'_'+str(k)+'.txt'):
 			print helpTextSmall
@@ -804,6 +875,7 @@ Usage
 [-P][--prefix]
 [-z][--fuzzy]
 [-a]
+[-C][--coverage]
 [-k]
 [-o output_filename][--output output_filename]
 [-x][--overwrite]
@@ -878,34 +950,37 @@ Optional arguments
   Should have extention fastq or fq.
 -d,--dir,--directory = <directory>
   BATCH MODE : Location of all the samples for batch mode.
--l,--list = <list_file>
-  LIST MODE : Location of list file and flag for list mode.
-  list file should have full file paths for all the samples/files.
-    Each sample takes one line. For paired end samples the 2 files should be tab separated on single line.
--p,--paired
-  Flag for specifying paired end files. Default option so would work the same if you do not specify for all modes.
-  For batch mode the paired end samples should be differentiated by 1/2.fastq or 1/2.fq
--s,--single
-  Flag for specifying single end files.
- -P,--prefix = <prefix>
-	Prefix using which the db was created(Defaults = kmer). The location of the db could also be provided.
+-C,--coverage
+	Calculate seqence coverage for each allele. Turns on read generation (-r) and turns off fuzzy (-z 1)
+	Requires bwa, bamtools and samtools be in your path
 -k = <kmer_length>
   Kmer length for which the db was created(Default k = 35). Could be verified by looking at the name of the db file. 
   Could be used if the reads are of very bad quality or have a lot of N's.
--z,--fuzzy = <fuzzy threshold int>
-	Threshold for reporting a fuzzy match (Default=300). For higher coverage reads this threshold should be set higher to avoid
-	indicating fuzzy match when exact match was more likely. For lower coverage reads, threshold of <100 is recommended
+-l,--list = <list_file>
+  LIST MODE : Location of list file and flag for list mode.
+  list file should have full file paths for all the samples/files.
+  Each sample takes one line. For paired end samples the 2 files should be tab separated on single line.
 -o,--output = <output_filename>
   Prints the output to a file instead of stdio.
+-p,--paired
+  Flag for specifying paired end files. Default option so would work the same if you do not specify for all modes.
+  For batch mode the paired end samples should be differentiated by 1/2.fastq or 1/2.fq
+-P,--prefix = <prefix>
+	Prefix using which the db was created(Defaults = kmer). The location of the db could also be provided.
+-r
+  A seperate reads file is created which has all the reads covering all the locus.
+-s,--single
+  Flag for specifying single end files.
+-t
+  Time for each analysis will also be reported.
+-v
+  Prints the version of the software.
 -x,--overwrite
   By default stringMLST appends the results to the output_filename if same name is used.
   This argument overwrites the previously specified output file.
--t
-  Time for each analysis will also be reported.
--r
-  A seperate reads file is created which has all the reads covering all the locus.
--v
-  Prints the version of the software.
+-z,--fuzzy = <fuzzy threshold int>
+	Threshold for reporting a fuzzy match (Default=300). For higher coverage reads this threshold should be set higher to avoid
+	indicating fuzzy match when exact match was more likely. For lower coverage reads, threshold of <100 is recommended
 -h,--help
   Prints the help manual for this application
 
@@ -941,7 +1016,6 @@ Example usage:
 helpTextSmall = """
 
 Usage
-./stringMLST.py 
 [--buildDB]
 [--predict]
 [-1 filename_fastq1][--fastq1 filename_fastq1]
@@ -953,6 +1027,8 @@ Usage
 [-c][--config]
 [-P][--prefix]
 [-z][--fuzzy]
+[-a]
+[-C][--coverage]
 [-k]
 [-o output_filename][--output output_filename]
 [-x][--overwrite]
@@ -1009,36 +1085,37 @@ Optional arguments
   Should have extention fastq or fq.
 -d,--dir,--directory = <directory>
   BATCH MODE : Location of all the samples for batch mode.
--l,--list = <list_file>
-  LIST MODE : Location of list file and flag for list mode.
-  list file should have full file paths for all the samples/files.
-    Each sample takes one line. For paired end samples the 2 files should be tab separated on single line.
--p,--paired
-  Flag for specifying paired end files. Default option so would work the same if you do not specify for all modes.
-  For batch mode the paired end samples should be differentiated by 1/2.fastq or 1/2.fq
--s,--single
-  Flag for specifying single end files.
- -P,--prefix = <prefix>
-	Prefix using which the db was created(Defaults = kmer). The location of the db could also be provided.
+-C,--coverage
+	Calculate seqence coverage for each allele. Turns on read generation (-r) and turns off fuzzy (-z 1)
+	Requires bwa, bamtools and samtools be in your path
 -k = <kmer_length>
   Kmer length for which the db was created(Default k = 35). Could be verified by looking at the name of the db file. 
   Could be used if the reads are of very bad quality or have a lot of N's.
--z,--fuzzy = <fuzzy threshold int>
-	Threshold for reporting a fuzzy match (Default=300). For higher coverage reads this threshold should be set higher to avoid
-	indicating fuzzy match when exact match was more likely. For lower coverage reads, threshold of <100 is recommended
+-l,--list = <list_file>
+  LIST MODE : Location of list file and flag for list mode.
+  list file should have full file paths for all the samples/files.
+  Each sample takes one line. For paired end samples the 2 files should be tab separated on single line.
 -o,--output = <output_filename>
   Prints the output to a file instead of stdio.
+-p,--paired
+  Flag for specifying paired end files. Default option so would work the same if you do not specify for all modes.
+  For batch mode the paired end samples should be differentiated by 1/2.fastq or 1/2.fq
+-P,--prefix = <prefix>
+	Prefix using which the db was created(Defaults = kmer). The location of the db could also be provided.
+-r
+  A seperate reads file is created which has all the reads covering all the locus.
+-s,--single
+  Flag for specifying single end files.
+-t
+  Time for each analysis will also be reported.
+-v
+  Prints the version of the software.
 -x,--overwrite
   By default stringMLST appends the results to the output_filename if same name is used.
   This argument overwrites the previously specified output file.
--a
-  File location to write run log
--t
-  Time for each analysis will also be reported.
--r
-  A seperate reads file is created which has all the reads covering all the locus.
--v
-  Prints the version of the software.
+-z,--fuzzy = <fuzzy threshold int>
+	Threshold for reporting a fuzzy match (Default=300). For higher coverage reads this threshold should be set higher to avoid
+	indicating fuzzy match when exact match was more likely. For lower coverage reads, threshold of <100 is recommended
 -h,--help
   Prints the help manual for this application
 
@@ -1066,11 +1143,12 @@ dbPrefix = 'kmer'
 log =''
 k = 35
 fuzzy = 300
+coverage = False
 
 #print 'ARGV      :', sys.argv[1:]
 #exit(0)
 """Input arguments"""
-options, remainder = getopt.getopt(sys.argv[1:], 'o:x1:2:k:l:bd:pshP:c:trva:z:', [
+options, remainder = getopt.getopt(sys.argv[1:], 'o:x1:2:k:l:bd:pshP:c:trva:z:C', [
  'buildDB',
  'predict',
  'output=',
@@ -1086,7 +1164,8 @@ options, remainder = getopt.getopt(sys.argv[1:], 'o:x1:2:k:l:bd:pshP:c:trva:z:',
  'paired',
  'single',
  'help',
- 'fuzzy='])
+ 'fuzzy=',
+ 'coverage'])
 
 for opt, arg in options:
 	if opt in ('-o', '--output'):
@@ -1134,6 +1213,10 @@ for opt, arg in options:
 	elif opt in ('-v'):
 		print(v)
 		exit(0)
+	elif opt in ('-C','--coverage'):
+		coverage = True
+		reads = True
+		fuzzy = 1
 	elif opt in ('-z','--fuzzy'):
 		try:
 			fuzzy = int(arg)
@@ -1176,6 +1259,10 @@ elif predict == True:
 	else:
 		results = {}
 		results = singleSampleTool(fastq1,fastq2,paired,k,results)
+	if coverage == True:
+		from pyfaidx import Fasta
+		loadConfig(config)
+		getCoverage(results)
 	printResults(results,output_filename,overwrite,timeDisp)
 else:
 	print helpTextSmall
