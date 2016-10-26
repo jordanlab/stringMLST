@@ -87,7 +87,9 @@ stringMLST's workflow is divided into two routines:
 *	Batch mode - for running stringMLST on all the FASTQ files present in a directory
 *	List mode - for running stringMLST on all the FASTQ files provided in a list file
 
-**Please note: stringMLST expects paired end reads to be in [Illumina naming convention](http://support.illumina.com/help/SequencingAnalysisWorkflow/Content/Vault/Informatics/Sequencing_Analysis/CASAVA/swSEQ_mCA_FASTQFiles.htm), minimally ending with _1.fq and _2.fq to delineate read1 and read2:
+**stringMLST expects paired end reads to be in [Illumina naming convention](http://support.illumina.com/help/SequencingAnalysisWorkflow/Content/Vault/Informatics/Sequencing_Analysis/CASAVA/swSEQ_mCA_FASTQFiles.htm), minimally ending with _1.fq and _2.fq to delineate read1 and read2:**
+
+*Periods (.) are disallowed delimiters except for file extensions *
 
 ````
 Illumina FASTQ files use the following naming scheme:

@@ -80,6 +80,7 @@ import os
 import time
 import ast
 import gzip
+import re
 
 """
 The program has 3 basic modes :
@@ -167,6 +168,7 @@ def	multiSampleTool(fileList,paired,k):
 # Description: Processes both FASTQ files passed to the function
 #############################################################	
 def singleSampleTool(fastq1,fastq2,paired,k,results):
+	print "Starting singleSampletool"
 	if paired == True:
 		fileName = fastq1.split('/')[-1].split('.')[0][:-1]
 	else:
@@ -246,14 +248,17 @@ def singleFileTool(fastq,k):
 		non_overlapping_window = 1
 		finalProfile = {}
 		t1 = time.time()
-		fileExplorer(fastq, k, non_overlapping_window)
+		fileExplorer(fastq, k, non_overlapping_window) # Actual subroutine of interest
 		t3 = time.time()
 	else:
 		msg = "File does not exist: "+fastq
 		logging.error("singleFileTool : msg")
 		print msg
-
-def fileExplorer(file, k, non_overlapping_window):	
+#############################################################
+# Subroutine that actually does what we want from the program
+#############################################################
+def fileExplorer(file, k, non_overlapping_window):
+	print "Starting fileExplorer"	
 	if file.endswith('.gz'):
 		f = gzip.open(file, 'rb')
 	else:
@@ -263,7 +268,9 @@ def fileExplorer(file, k, non_overlapping_window):
 	lines = f.readlines()
 	i = 1
 	n_reads = 0
-	try:
+	try: # Skip files with read lengths less than k. 
+	##!! Skip reads that are less than k instead !!##
+	##!! Improvement !!##
 		if len(lines[1]) < k:
 			m1 = "Read length "+ len(lines[1])+" for file "+ file+" smaller than "+k 
 			print m1
@@ -271,7 +278,7 @@ def fileExplorer(file, k, non_overlapping_window):
 			logging.debug(m1)
 			return 0
 	except:
-		m2 = "Check fastq file " + file
+		m2 = "Check fastq file " + file # Error message in log
 		print m2
 		logging.debug(m2)
 		return 0
@@ -307,17 +314,17 @@ def fileExplorer(file, k, non_overlapping_window):
 def goodReads(read,k,non_overlapping_window):
 	n = 0
 	line = read.rstrip()
-	while (n+k <= len(line)):
-		s = str(line[n:n+k])
-		if s in kmerDict[k]:
-			for probLoc in kmerDict[k][s]:
+	while (n+k <= len(line)): # sliding window starting from base 1 through l-k
+		s = str(line[n:n+k]) # substring == kmer
+		if s in kmerDict[k]: # If kmer exists in dict
+			for probLoc in kmerDict[k][s]: # Starts defining potentially matching loci
 				if probLoc not in alleleCount:
-					alleleCount[probLoc] = {}
+					alleleCount[probLoc] = {} # Initialized the counter for this locus
 				a = kmerDict[k][s][probLoc]
-				for allele in a:
+				for allele in a: # A kmer may hit multiple alleles, make sure to count all of them
 					allele = allele.rstrip()
 					if allele in alleleCount[probLoc]:
-						alleleCount[probLoc][allele] += 1
+						alleleCount[probLoc][allele] += 1 # Increment hit counter
 					else:
 						alleleCount[probLoc][allele] = 1
 		n += non_overlapping_window
@@ -328,18 +335,19 @@ def goodReads(read,k,non_overlapping_window):
 # Output/Desc: Normalizes alleleCount by weight factor
 #############################################################	
 def weightedProf(alleleCount,weightDict):
+	print "Starting weightedProf"
 	logging.debug("weightedProf")
 	weightedDict = {}
-	for loc in alleleCount:
+	for loc in alleleCount: # loc == goodReads::probLoc
 		weightedDict[loc] = {}
-		for allele in alleleCount[loc]:
+		for allele in alleleCount[loc]: 
 			if loc in weightDict:
 				if allele in weightDict[loc]:
-					weightedDict[loc][allele] = alleleCount[loc][allele] / weightDict[loc][allele]
+					weightedDict[loc][allele] = alleleCount[loc][allele] / weightDict[loc][allele] # normalize counts
 				else:
 					weightedDict[loc][allele] = alleleCount[loc][allele]
 			else:
-				weightedDict[loc][allele] = alleleCount[loc][allele]
+				weightedDict[loc][allele] = alleleCount[loc][allele] # No need to normalize
 	return weightedDict
 
 #############################################################
@@ -356,6 +364,7 @@ def getMaxCount(alleleCount,fileName):
 	maxSupport = {}
 	secondSupport = {}
 	finalProfileCount = {}
+	print "Starting getMaxCount"
 	for loc in alleleCount:
 		n = 0
 		m = 0 
@@ -363,16 +372,25 @@ def getMaxCount(alleleCount,fileName):
 			if alleleCount[loc][num] >= n:
 				m = n
 				n = alleleCount[loc][num]
-		max_n[loc] = n
+		if n-m < fuzzy:
+			alleleCount[loc][num] = str(alleleCount[loc][num])+'*'	
+			max_n[loc] = str(n)+'*'
+		else:
+			max_n[loc] = n
 		secondMax[loc] = m
 	for loc in alleleCount:
 		maxSupport[loc] = {}
 		secondSupport[loc] = {}
 		num_max = []
 		num_max2 = []
+		compare = int(re.sub("\*$","",str(max_n[loc])))
 		for num in alleleCount[loc]:
-			if 	alleleCount[loc][num] == max_n[loc]:
-				num_max.append(num)
+			if 	alleleCount[loc][num] == compare:
+				if "*" in str(max_n[loc]):
+					insert = num + '*'
+					num_max.append(insert)
+				else:
+					num_max.append(num)
 				maxSupport[loc][num] = max_n[loc]
 			if 	alleleCount[loc][num] == secondMax[loc]:
 				num_max2.append(num)
@@ -381,10 +399,11 @@ def getMaxCount(alleleCount,fileName):
 			finalProfileCount[loc] = num_max[0]
 		except:
 			finalProfileCount[loc] = '0'
-	msgs = "Max Support :" + fileName + " : " + str(maxSupport) 
+	msgs = "Max Support :" + fileName + " : " + str(maxSupport)  
 	logging.debug(msgs)
 	msgs = "Second Max Support :" + fileName + " : " + str(secondSupport) 
 	logging.debug(msgs)
+	print finalProfileCount
 	return finalProfileCount
 
 #############################################################
@@ -394,12 +413,14 @@ def getMaxCount(alleleCount,fileName):
 # Description: Finds the ST number which best matches the given sample profile.
 #############################################################
 def findST(finalProfile,stProfile):
+	print "Starting findST"
 	if not stProfile:
 		return 0
 	oneProfile = stProfile.itervalues().next()
 
 	# The gene names in finalProfile may not exactly match those in stProfile. To deal with this,
 	# each finalProfile gene is associated with the best matching gene in the ST profiles.
+	# We should normalize the names in the db / profiles
 	finalGeneToSTGene = {}
 	profileGenes = oneProfile.keys()
 	for finalGene in finalProfile.keys():
@@ -420,6 +441,7 @@ def findST(finalProfile,stProfile):
 			exit(0)
 	transformedFinalProfile = {}
 	for gene, allele in finalProfile.iteritems():
+		allele = re.sub("\*","",allele)
 		transformedFinalProfile[finalGeneToSTGene[gene]] = allele
 
         # Check to see if the dictionary is empty, if so then means no allele were found at all
@@ -443,6 +465,7 @@ def findST(finalProfile,stProfile):
 # Description: Used in loading the DB as set of variables
 #			   by calling other functions
 #############################################################
+# Sets up paths and loads files
 def loadModule(k,dbPrefix):
 	global dbFile
 	dbFile = dbPrefix+'_'+str(k)+'.txt'
@@ -453,6 +476,9 @@ def loadModule(k,dbPrefix):
 	global kmerDict
 	kmerDict = {}
 	kmerDict[k] = loadKmerDict(dbFile)
+	global kmerPerAllele
+	kcountFile = dbPrefix+'_kcount.txt'
+	loadKmerCount(kcountFile)
 	global weightDict
 	weightDict = loadWeightDict(weightFile)
 	global stProfile
@@ -465,7 +491,9 @@ def loadModule(k,dbPrefix):
 # Description: Used in loading the DB as set of variables
 #############################################################		
 def loadSTfromFile(profileF):
+	print "Starting loadSTfromFile"
 	with open(profileF,'r') as definitionFile:
+		logerr = True
 		st = {}
 		index = {}
 		lines = definitionFile.readlines()
@@ -479,7 +507,9 @@ def loadSTfromFile(profileF):
 				try:
 					l[locus] = pro[index[locus]]
 				except:
-					logging.debug("ERROR while loading ST")
+					if logerr:
+						logging.debug("One or more errors occurred while loading ST profiles.\nTypically this happens when profile(s) don't have clonal complex info and is safe to ignore")
+						logerr = False
 					pass
 			st[pro[0]] = l
 	return st
@@ -491,7 +521,10 @@ def loadSTfromFile(profileF):
 # Description: Used in loading the DB as set of variables
 #############################################################	
 def loadKmerDict(dbFile):
+	print "Starting loadKmerDict"
 	kmerTableDict = {}
+	# load_obj(dbFile)
+	kmerPerAllele = {}
 	with open(dbFile,'r') as kmerTableFile:
 		lines = kmerTableFile.readlines()
 		for line in lines:
@@ -507,6 +540,7 @@ def loadKmerDict(dbFile):
 # Description: Used in loading the DB as set of variables
 #############################################################		
 def loadWeightDict(weightFile):
+	print "Starting loadWeightDict"
 	weightDict = {}
 	with open(weightFile,'r') as weightTableFile:
 		lines = weightTableFile.readlines()
@@ -518,6 +552,27 @@ def loadWeightDict(weightFile):
 				weightDict[loc] = {}
 			weightDict[loc][allele] = float(array[1])
 	return weightDict	
+
+#############################################################
+# Function   : loadKmerCount
+# Input      : kcount file prefix
+# Description: Loads kcounts for coverage cals
+#############################################################
+
+def loadKmerCount(kcountFile):
+	print "Starting loadKmerCount"
+	kmerPerAllele = {}
+	with open(kcountFile,'r') as kcounts:
+		lines = kcounts.readlines()
+		for line in lines:
+			(gene, allele, count) = line.rstrip().rsplit("\t")
+			if gene not in kmerPerAllele:
+				kmerPerAllele[gene] = {}
+			if allele not in kmerPerAllele[gene]:
+				kmerPerAllele[gene][allele] = []
+			kmerPerAllele[gene][allele] = count
+	return kmerPerAllele
+
 
 """Prints the results in the format asked by the user."""
 
@@ -547,7 +602,7 @@ def printResults(results,output_filename,overwrite,timeDisp):
 	else:
 		print heading
 	for s in results:
-		sample = s
+		sample = s.split("_")[0]
 		for l in sorted(results[s]):
 			if l == 'ST' or l == 't':
 				continue
@@ -603,9 +658,13 @@ def getFastaDict(fullLocusFile):
 def formKmerDB(configDict,k,output_filename):	
 	dbFileName = output_filename+'_'+str(k)+'.txt'
 	weightFileName = output_filename+'_weight.txt'
+	kcountFileName = output_filename+'_kcount.txt'
 	kmerDict = {}
 	mean = {}
+	kmerPerAllele = {}
 	for locus in configDict['loci']:
+		if locus not in kmerPerAllele:
+			kmerPerAllele[locus] = {}
 		msgs = "formKmerDB :" +locus
 		logging.debug(msgs)
 		fastaDict = getFastaDict(configDict['loci'][locus])
@@ -646,6 +705,7 @@ def formKmerDB(configDict,k,output_filename):
 						kmerDict[revCompKmer][splitId[0]].append(int(splitId[1]))
 					else:
 						kmerDict[revCompKmer][splitId[0]].append(int(splitId[1]))
+				kmerPerAllele[locus][int(splitId[1])] = int(i)
 				i += 1
 		mean[locus] = sum/n*1.0
 	with open(dbFileName,'w') as kfile:
@@ -653,6 +713,11 @@ def formKmerDB(configDict,k,output_filename):
 			for key1 in kmerDict[key]:
 				string = key+'\t'+key1+'\t'+str(kmerDict[key][key1]).replace(" ","")+'\n'
 				kfile.write(string)
+	with open(kcountFileName,'w') as kcount:
+		for locus in sorted(kmerPerAllele.iterkeys()):
+			for allele in sorted(kmerPerAllele[locus].iterkeys()):
+				string = locus + "\t" + str(allele) + "\t" + str(kmerPerAllele[locus][allele]) + "\n"
+				kcount.write(string)
 
 	with open(weightFileName,'w') as wfile:
 		for locus in configDict['loci']:
@@ -731,15 +796,15 @@ def checkParams(buildDB,predict,config,k,listMode,list,batch,dir,fastq1,fastq2,p
 			exit(0)
 		if not os.path.isfile(dbPrefix+'_'+str(k)+'.txt'):
 			print helpTextSmall
-			print "DB file does not exist : ",dbPrefix,'_',str(k),'.txt or change DB prefix.'
+			print "DB file does not exist : " + dbPrefix + '_' + str(k) + '.txt or change DB prefix.'
 			exit(0)
 		if not os.path.isfile(dbPrefix+'_weight.txt'):
 			print helpTextSmall
-			print "DB file does not exist : ",dbPrefix,'_weight.txt or change DB prefix.'
+			print "DB file does not exist : " + dbPrefix + '_weight.txt or change DB prefix.'
 			exit(0)
 		if not os.path.isfile(dbPrefix+'_profile.txt'):
 			print helpTextSmall
-			print "DB file does not exist : ",dbPrefix,'_profile.txt or change DB prefix.'
+			print "DB file does not exist : " + dbPrefix + '_profile.txt or change DB prefix.'
 			exit(0)
 		if listMode == True:	
 			if not os.path.isfile(list):
@@ -1043,11 +1108,12 @@ reads = False
 dbPrefix = 'kmer'
 log =''
 k = 35
+fuzzy = 300
 
 #print 'ARGV      :', sys.argv[1:]
 #exit(0)
 """Input arguments"""
-options, remainder = getopt.getopt(sys.argv[1:], 'o:x1:2:k:l:bd:pshP:c:trva:', [
+options, remainder = getopt.getopt(sys.argv[1:], 'o:x1:2:k:l:bd:pshP:c:trva:z:', [
  'buildDB',
  'predict',
  'output=',
@@ -1062,7 +1128,8 @@ options, remainder = getopt.getopt(sys.argv[1:], 'o:x1:2:k:l:bd:pshP:c:trva:', [
  'directory=',
  'paired',
  'single',
- 'help',])
+ 'help',
+ 'fuzzy='])
 
 for opt, arg in options:
 	if opt in ('-o', '--output'):
@@ -1110,6 +1177,12 @@ for opt, arg in options:
 	elif opt in ('-v'):
 		print(v)
 		exit(0)
+	elif opt in ('-z','--fuzzy'):
+		try:
+			fuzzy = int(arg)
+		except ValueError:
+			print "You provided '"+ arg +"' for your fuzziness threshold, which is not an integer value"
+			exit(0)
 	elif opt in ('-h','--help'):
 		print helpText
 		exit(0)
