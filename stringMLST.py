@@ -9,7 +9,7 @@ import gzip
 import re
 import tempfile
 import shutil
-v = """ stringMLST v0.3 (updated : October 26, 2016) """
+version = """ stringMLST v0.3.1 (updated : October 27, 2016) """
 """
 LICENSE TERMS FOR stringMLST
 1. INTENT/PURPOSE:
@@ -1098,7 +1098,7 @@ for opt, arg in options:
     elif opt in '-r':
         reads = True
     elif opt in '-v':
-        print(v)
+        print(version)
         exit(0)
     elif opt in ('-C', '--coverage'):
         coverage = True
