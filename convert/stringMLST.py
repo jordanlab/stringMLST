@@ -443,10 +443,10 @@ def findST(finalProfile,stProfile):
 		allele = re.sub("\*","",allele)
 		transformedFinalProfile[finalGeneToSTGene[gene]] = allele
 
-		# Check to see if the dictionary is empty, if so then means no allele were found at all
-		if bool(transformedFinalProfile) == False:
-				return 0
-		
+        # Check to see if the dictionary is empty, if so then means no allele were found at all
+        if bool(transformedFinalProfile) == False:
+                return 0
+        
 	# Find the best matching ST, considering only the genes in the sample's profile. This is to
 	# allow for superfluous columns in the ST profile.
 	logging.debug("findST")
@@ -672,14 +672,14 @@ def reverseComplement(seq):
 def getFastaDict(fullLocusFile):
 	logging.debug("Create Fasta Dict")
 	logging.debug(fullLocusFile)
-	fastaFile = open(fullLocusFile,'r').read()
-	entries = [x for x in fastaFile.split('>') if len(x) != 0]
-	fastaDict = {}
-	for entry in entries:
-		key = [x for x in entry.split('\n')[0].split() if len(x) != 0][0]
-		sequence = ''.join(entry.split('\n')[1:]).rstrip()
-		fastaDict[key] = {'sequence':sequence}
-	return fastaDict		
+        fastaFile = open(fullLocusFile,'r').read()
+        entries = [x for x in fastaFile.split('>') if len(x) != 0]
+        fastaDict = {}
+        for entry in entries:
+            key = [x for x in entry.split('\n')[0].split() if len(x) != 0][0]
+            sequence = ''.join(entry.split('\n')[1:]).rstrip()
+            fastaDict[key] = {'sequence':sequence}
+        return fastaDict		
 
 #############################################################
 # Function   : formKmerDB
@@ -929,7 +929,7 @@ Optional arguments
 -P,--prefix = <prefix>
 	Prefix for db and log files to be created(Default = kmer). Also you can specify folder where you want the dbb to be created.
 -a
-		File location to write build log
+        File location to write build log
 -h,--help
   Prints the help manual for this application
 
@@ -1239,8 +1239,8 @@ for opt, arg in options:
 checkParams(buildDB,predict,config,k,listMode,list,batch,dir,fastq1,fastq2,paired,dbPrefix)			
 if buildDB == True:
 	try:
-		if not log:
-			log = dbPrefix+'.log'
+                if not log:
+                        log = dbPrefix+'.log'
 	except TypeError:
 		log = 'kmer.log'
 	logging.basicConfig(filename=log,level=logging.DEBUG,format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
@@ -1255,8 +1255,8 @@ if buildDB == True:
 	
 elif predict == True:
 	try:
-		if not log:
-			log = dbPrefix+'.log'
+                if not log:
+		        log = dbPrefix+'.log'
 	except TypeError:
 		log = 'kmer.log'
 	logging.basicConfig(filename=log,level=logging.DEBUG,format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
