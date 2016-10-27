@@ -1,14 +1,5 @@
 #!/usr/bin/env python
 
-from __future__ import division
-from __future__ import unicode_literals
-from __future__ import print_function
-from __future__ import absolute_import
-from future import standard_library
-standard_library.install_aliases()
-from builtins import str
-from builtins import *
-from past.utils import old_div
 v = """ stringMLST v0.3 (updated : October 26, 2016) """
 
 """
@@ -286,8 +277,8 @@ def fileExplorer(file, k, non_overlapping_window):
 		print(m2)
 		logging.debug(m2)
 		return 0
-	start = old_div((len(lines[1])-k),2)
-	end = old_div((len(lines[1])-k),2)
+	start = int((len(lines[1])-k)//2)
+	end = int((len(lines[1])-k)//2)
 	yesRead = False
 	for line in lines:
 		if i % 4 == 0 and yesRead:
