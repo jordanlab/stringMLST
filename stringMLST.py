@@ -331,7 +331,7 @@ def getMaxCount(alleleCount, fileName):
         secondSupport[loc] = {}
         num_max = []
         num_max2 = []
-        compare = int(re.sub("\*$", "", str(max_n[loc])))
+        compare = float(re.sub("\*$", "", str(max_n[loc])))
         for num in alleleCount[loc]:
             if  alleleCount[loc][num] == compare:
                 if "\*" in str(max_n[loc]):
