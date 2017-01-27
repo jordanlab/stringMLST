@@ -9,7 +9,7 @@ import gzip
 import re
 import tempfile
 import shutil
-version = """ stringMLST v0.3.1 (updated : October 27, 2016) """
+version = """ stringMLST v0.3.2 (updated : January 27, 2017) """
 """
 LICENSE TERMS FOR stringMLST
 1. INTENT/PURPOSE:
