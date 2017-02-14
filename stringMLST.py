@@ -9,6 +9,9 @@ import gzip
 import re
 import tempfile
 import shutil
+import xml.etree.ElementTree as ET
+import urllib.request
+import argparse
 version = """ stringMLST v0.3.2 (updated : January 27, 2017) """
 """
 LICENSE TERMS FOR stringMLST
@@ -61,6 +64,52 @@ The program has 3 basic modes :
     listTool: for multiple samples with location information stored in a list (both single and paired end samples)
 predict part starts here
 """
+#############################################################
+# Function   : get_links
+# Input      : speciesName and schemes dict
+# Output     : Dict containing links to alleles and profile
+# Description: Gets the URLs from pubMLST for the required
+#              files (alleles, profile)
+#############################################################
+def get_links(speciesName,schemes):
+    global loci
+    loci = {}
+    URL="http://pubmlst.org/data/dbases.xml"
+    xml = urllib.request.urlopen(URL)
+    tree = ET.parse(xml)
+    root = tree.getroot()
+    for species in root:
+        if re.search(schemes[speciesName], species.text,re.IGNORECASE):
+            for mlst in species:
+                for database in mlst:
+                    for child in database:
+                        if child.tag == "profiles":
+                            profileURL = child[1].text
+                        if child.tag == "loci":
+                            for locus in child:
+                                loci[locus.text.rstrip()] = locus[0].text
+ 
+    return profileURL
+#############################################################
+# Function   : get_files
+# Input      : URLs from get_links
+# Output     : Downloads files and builds database
+#############################################################
+def get_files(profileURL):
+
+    with open(config, "w") as configFile:
+        configFile.write("[loci]\n")
+        for file in loci:
+            localFile = dbPrefix + "_" + file + ".tfa"
+            localFfile, headers = urllib.request.urlretrieve(loci[file],localFile)
+            configFile.write(file + "\t" + dbPrefix + "_" + file + ".tfa\n")
+        localFile = dbPrefix + "_" + species + "_profile.txt"
+        localFile, headers = urllib.request.urlretrieve(profileURL,localFile)
+        configFile.write("[profile]\n")
+        configFile.write("profile\t" + dbPrefix + "_" + species + "_profile.txt\n")
+        configFile.close()
+
+        makeCustomDB(config,k,dbPrefix)
 #############################################################
 # Function   : batchTool
 # Input      : Directory name, paired or single, k value
@@ -727,7 +776,7 @@ def checkParams(buildDB, predict, config, k, listMode, list, batch, dir, fastq1,
         print(helpTextSmall)
         print("Select either predict or buildDB module")
         exit(0)
-    if predict is False and buildDB is False:
+    if predict is False and buildDB is False and downloadDB is False:
         print(helpTextSmall)
         print("Select either predict or buildDB module")
         exit(0)
@@ -901,6 +950,29 @@ Optional arguments
 -h,--help
   Prints the help manual for this application
 =============================================================================================
+3. stringMLST.py --getMLST
+Synopsis:
+stringMLST.py --getMLST -c <config file> --species= <species> -k [kmer length] -P [DB prefix]
+Required arguments
+--getMLST
+    Identifier for getMLST module
+-c,--config = <configuration file>
+    Save path for configuration file
+--species= <species name>
+    Species name from the pubMLST schemes (use --schemes to get list of available schemes)
+Optional arguments
+-k = <kmer length>
+    Kmer size for which the db has to be formed(Default k = 35). Note the tool works best with kmer length in between 35 and 66
+    for read lengths of 55 to 150 bp. Kmer size can be increased accordingly. It is advised to keep lower kmer sizes
+    if the quality of reads is not very good.
+-P,--prefix = <prefix>
+    Prefix for db and log files to be created(Default = kmer). Also you can specify folder where you want the db to be created.
+    We recommend that prefix and config point to the same folder for cleanliness but this is not required
+--schemes
+    Display the list of available schemes
+-h,--help
+  Prints the help manual for this application
+=============================================================================================
 Example usage:
 ./stringMLST.py --buildDB
 1) Build DB
@@ -917,6 +989,12 @@ Example usage:
    ./stringMLST.py --predict -l data/listFile.txt -p --prefix NM -k 35 -o output.txt -x
 5) Single, high coverage sample, paired end
  ./stringMLST.py --predict -1 data/Neisseria/ERR017001_1.fastq -2 data/Neisseria/ERR017001_2.fastq -p --prefix NM -k 35 -z 1000 -o output.txt
+--------------------------------------------------------------------------------------------
+./stringMLST.py --getMLST
+1) List available schemes
+ ./stringMLST.py --getMLST --schemes
+2) Download the Neisseria spp. pubMLST scheme
+  ./stringMLST.py --getMLST -c datasets/nmb.config --species=neisseria -P datasets/nmb
 """
 helpTextSmall = """
 Usage
@@ -1012,9 +1090,164 @@ Optional arguments
 -h,--help
   Prints the help manual for this application
 =============================================================================================
+3. stringMLST.py --getMLST
+Synopsis:
+stringMLST.py --getMLST -c <config file> --species= <species> -k [kmer length] -P [DB prefix]
+Required arguments
+--getMLST
+    Identifier for getMLST module
+-c,--config = <configuration file>
+    Save path for configuration file
+--species= <species name>
+    Species name from the pubMLST schemes (use --schemes to get list of available schemes)
+Optional arguments
+-k = <kmer length>
+    Kmer size for which the db has to be formed(Default k = 35). Note the tool works best with kmer length in between 35 and 66
+    for read lengths of 55 to 150 bp. Kmer size can be increased accordingly. It is advised to keep lower kmer sizes
+    if the quality of reads is not very good.
+-P,--prefix = <prefix>
+    Prefix for db and log files to be created(Default = kmer). Also you can specify folder where you want the db to be created.
+    We recommend that prefix and config point to the same folder for cleanliness but this is not required
+--schemes
+    Display the list of available schemes
+-h,--help
+  Prints the help manual for this application
+=============================================================================================
+
 """
+schemes = {"achromobacter" : "Achromobacter spp.",
+"baumannii1" : "Acinetobacter baumannii#1",
+"baumannii2" : "Acinetobacter baumannii#2",
+"aeromonas" : "Aeromonas spp.",
+"anaplasma-phagocytophilum" : "Anaplasma phagocytophilum",
+"arcobacter" : "Arcobacter spp.",
+"aspergillus-fumigatus" : "Aspergillus fumigatus",
+"bacillus-cereus" : "Bacillus cereus",
+"bacillus-licheniformis" : "Bacillus licheniformis",
+"bacillus-subtilis" : "Bacillus subtilis",
+"bartonella-henselae" : "Bartonella henselae",
+"bordetella" : "Bordetella spp.",
+"borrelia" : "Borrelia spp.",
+"brachyspira-hampsonii" : "Brachyspira hampsonii",
+"brachyspira-hyodysenteriae" : "Brachyspira hyodysenteriae",
+"brachyspira-intermedia" : "Brachyspira intermedia",
+"brachyspira-pilosicoli" : "Brachyspira pilosicoli",
+"brachyspira" : "Brachyspira spp.",
+"brucella" : "Brucella spp.",
+"burkholderia-cepacia-complex" : "Burkholderia cepacia complex",
+"burkholderia-pseudomallei" : "Burkholderia pseudomallei",
+"campylobacter-concisus/curvus" : "Campylobacter concisus/curvus",
+"campylobacter-fetus" : "Campylobacter fetus",
+"campylobacter-helveticus" : "Campylobacter helveticus",
+"campylobacter-hyointestinalis" : "Campylobacter hyointestinalis",
+"campylobacter-insulaenigrae" : "Campylobacter insulaenigrae",
+"campylobacter-jejuni" : "Campylobacter jejuni",
+"campylobacter-lanienae" : "Campylobacter lanienae",
+"campylobacter-lari" : "Campylobacter lari",
+"campylobacter-sputorum" : "Campylobacter sputorum",
+"campylobacter-upsaliensis" : "Campylobacter upsaliensis",
+"candida-albicans" : "Candida albicans",
+"candida-glabrata" : "Candida glabrata",
+"candida-krusei" : "Candida krusei",
+"candida-tropicalis" : "Candida tropicalis",
+"carnobacterium-maltaromaticum" : "Carnobacterium maltaromaticum",
+"chlamydiales" : "Chlamydiales spp.",
+"citrobacter-freundii" : "Citrobacter freundii",
+"clonorchis-sinensis" : "Clonorchis sinensis",
+"clostridium-botulinum" : "Clostridium botulinum",
+"clostridium-difficile" : "Clostridium difficile",
+"clostridium-septicum" : "Clostridium septicum",
+"corynebacterium-diphtheriae" : "Corynebacterium diphtheriae",
+"cronobacter" : "Cronobacter spp.",
+"enterobacter-cloacae" : "enterobacter cloacae",
+"enterococcus-faecalis" : "enterococcus faecalis",
+"enterococcus-faecium" : "enterococcus faecium",
+"ecoli1" : "escherichia coli#1",
+"ecoli2" : "escherichia coli#2",
+"flavobacterium-psychrophilum" : "Flavobacterium psychrophilum",
+"haemophilus-influenzae" : "Haemophilus influenzae",
+"haemophilus-parasuis" : "Haemophilus parasuis",
+"helicobacter-cinaedi" : "Helicobacter cinaedi",
+"helicobacter-pylori" : "Helicobacter pylori",
+"helicobacter-suis" : "Helicobacter suis",
+"kingella-kingae" : "Kingella kingae",
+"klebsiella-oxytoca" : "Klebsiella oxytoca",
+"klebsiella-pneumoniae" : "Klebsiella pneumoniae",
+"kudoa-septempunctata" : "Kudoa septempunctata",
+"lactobacillus-salivarius" : "Lactobacillus salivarius",
+"leptospira" : "Leptospira spp.",
+"leptospira2" : "Leptospira spp.#2",
+"leptospira3" : "Leptospira spp.#3",
+"listeria" : "Listeria monocytogenes",
+"macrococcus-canis" : "Macrococcus canis",
+"macrococcus-caseolyticus" : "Macrococcus caseolyticus",
+"mannheimia-haemolytica" : "Mannheimia haemolytica",
+"melissococcus-plutonius" : "Melissococcus plutonius",
+"moraxella" : "Moraxella catarrhalis",
+"mycobacterium-abscessus" : "Mycobacterium abscessus",
+"mycobacterium-massiliense" : "Mycobacterium massiliense",
+"mycoplasma-agalactiae" : "Mycoplasma agalactiae",
+"mycoplasma-bovis" : "Mycoplasma bovis",
+"mycoplasma-hyopneumoniae" : "Mycoplasma hyopneumoniae",
+"mycoplasma-hyorhinis" : "Mycoplasma hyorhinis",
+"mycoplasma-iowae" : "Mycoplasma iowae",
+"mycoplasma-pneumoniae" : "Mycoplasma pneumoniae",
+"mycoplasma-synoviae" : "Mycoplasma synoviae",
+"neisseria" : "Neisseria spp.",
+"orientia-tsutsugamushi" : "Orientia tsutsugamushi",
+"ornithobacterium-rhinotracheale" : "Ornithobacterium rhinotracheale",
+"paenibacillus-larvae" : "Paenibacillus larvae",
+"pasteurella-multocida1" : "Pasteurella multocida#1",
+"pasteurella-multocida2" : "Pasteurella multocida#2",
+"pediococcus-pentosaceus" : "Pediococcus pentosaceus",
+"photobacterium-damselae" : "Photobacterium damselae",
+"porphyromonas-gingivalis" : "Porphyromonas gingivalis",
+"propionibacterium-acnes" : "Propionibacterium acnes",
+"pseudomonas-aeruginosa" : "Pseudomonas aeruginosa",
+"pseudomonas-fluorescens" : "Pseudomonas fluorescens",
+"riemerella-anatipestifer" : "Riemerella anatipestifer",
+"salmonella-enterica" : "Salmonella enterica",
+"sinorhizobium" : "Sinorhizobium spp.",
+"s.aureus" : "Staphylococcus aureus",
+"s.epidermidis" : "Staphylococcus epidermidis",
+"s.haemolyticus" : "Staphylococcus haemolyticus",
+"s.lugdunensis" : "Staphylococcus lugdunensis",
+"s.pseudintermedius" : "Staphylococcus pseudintermedius",
+"stapylococcus-hominis" : "Stapylococcus hominis",
+"stenotrophomonas-maltophilia" : "Stenotrophomonas maltophilia",
+"s.agalactiae" : "Streptococcus agalactiae",
+"s.bovis" : "Streptococcus bovis/equinus complex (SBSeC)",
+"s.canis" : "Streptococcus canis",
+"s.dysgalactiae-equisimilis" : "Streptococcus dysgalactiae equisimilis",
+"s.gallolyticus" : "Streptococcus gallolyticus",
+"s.oralis" : "Streptococcus oralis",
+"s.pneumoniae" : "Streptococcus pneumoniae",
+"s.pyogenes" : "Streptococcus pyogenes",
+"s.suis" : "Streptococcus suis",
+"s.thermophilus" : "Streptococcus thermophilus",
+"s.thermophilus2" : "Streptococcus thermophilus#2",
+"s.uberis" : "Streptococcus uberis",
+"s.zooepidemicus" : "Streptococcus zooepidemicus",
+"streptomyces-spp" : "Streptomyces spp",
+"taylorella" : "Taylorella spp.",
+"tenacibaculum" : "Tenacibaculum spp.",
+"trichomonas-vaginalis" : "Trichomonas vaginalis",
+"vibrio-cholerae" : "Vibrio cholerae",
+"vibrio-parahaemolyticus" : "Vibrio parahaemolyticus",
+"vibrio" : "Vibrio spp.",
+"vibrio-tapetis" : "Vibrio tapetis",
+"vibrio-vulnificus" : "Vibrio vulnificus",
+"wolbachia" : "Wolbachia",
+"xylella-fastidiosa" : "Xylella fastidiosa",
+"yersinia-pseudotuberculosis" : "Yersinia pseudotuberculosis",
+"yersinia-ruckeri" : "Yersinia ruckeri",
+"yersinia" : "Yersinia spp."}
+
 """The Program Starts Execution Here"""
 """Default Params"""
+downloadDB = False
+species = None
+printSchemes = False
 buildDB = False
 predict = False
 output_filename = None
@@ -1053,7 +1286,10 @@ options, remainder = getopt.getopt(sys.argv[1:], 'o:x1:2:k:l:bd:pshP:c:trva:z:C'
     'single',
     'help',
     'fuzzy=',
-    'coverage'])
+    'coverage',
+    'getMLST',
+    'schemes',
+    'species='])
 for opt, arg in options:
     if opt in ('-o', '--output'):
         output_filename = arg
@@ -1110,6 +1346,13 @@ for opt, arg in options:
         except ValueError:
             print("You provided '" + arg + "' for your fuzziness threshold, which is not an integer value")
             exit(0)
+    elif opt in '--schemes':
+        print (", ".join(sorted(schemes.keys())))
+        exit(0)
+    elif opt in '--getMLST':
+        downloadDB = True
+    elif opt in '--species':
+        species = arg
     elif opt in ('-h', '--help'):
         print(helpText)
         exit(0)
@@ -1152,7 +1395,23 @@ elif predict is True:
         loadConfig(config)
         getCoverage(results)
     printResults(results, output_filename, overwrite, timeDisp)
+elif downloadDB is True:
+    if config is None:
+        print(helpTextSmall)
+        exit(0)
+    if species is None:
+        print ("Please refer to the the --help to more information")
+        print()
+        print ("Expected command format:")
+        print("stringMLST.py --getMLST -c <config file> --species= <species> -k [kmer length] -P [DB prefix]")
+        print ()
+        print("Available MLST Schemes:")
+        print (", ".join(sorted(schemes.keys())))
+        exit(0)
+    profileURL = get_links(species,schemes)
+    get_files(profileURL)
 else:
     print(helpTextSmall)
     print("Error: Please select the mode: buildDB (for database building) or predict (for ST discovery) module")
 logging.debug('Command :' + str(sys.argv))
+
