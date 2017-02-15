@@ -253,6 +253,33 @@ Optional arguments
 -h,--help
   Prints the help manual for this application
 
+ --------------------------------------------------------------------------------------------
+
+3. stringMLST.py --getMLST
+
+Synopsis:  
+stringMLST.py --getMLST --species= <species> [-k kmer length] [-P DB prefix]
+
+Required arguments
+--getMLST
+    Identifier for getMLST module
+--species= <species name>
+    Species name from the pubMLST schemes (use --schemes to get list of available schemes)
+    "all" will download and build all 
+
+Optional arguments
+-k = <kmer length>
+    Kmer size for which the db has to be formed(Default k = 35). Note the tool works best with kmer length in between 35 and 66
+    for read lengths of 55 to 150 bp. Kmer size can be increased accordingly. It is advised to keep lower kmer sizes
+    if the quality of reads is not very good.
+-P,--prefix = <prefix>
+    Prefix for db and log files to be created(Default = kmer). Also you can specify folder where you want the db to be created.
+    We recommend that prefix and config point to the same folder for cleanliness but this is not required
+--schemes
+    Display the list of available schemes
+-h,--help
+  Prints the help manual for this application
+
 ```
 
 
@@ -271,6 +298,34 @@ NA10831_ATCACG_L002_R1_001.fastq.gz
 ```
 
 ## Running stringMLST
+
+#### Inlcuded databases and automated retrieval of databases from pubMLST
+
+stringMLST includes all the pubMLST databases as of **February 15, 2017**, built with the default kmer (*35*). They can be found in the `datasets/` folder.  
+Simply unzip the databases you need and begin using stringMSLT as desbribed below.
+
+All the databases from pubMLST can be downloaded and prepared with your kmer choice
+
+*Getting all pubMLST schemes*  
+```
+stringMLST.py --getMLST -P datasets/ --species all
+```
+
+
+Individual databases from pubMLST can also be downloaded as needed, using the scheme indentifiers
+
+*Downloading a scheme*  
+```
+# List available schemes
+stringMLST.py --getMLST --schemes
+
+# Download the Neisseria spp. scheme
+
+stringMLST.py --getMLST -P datasets/nmb --species neisseria
+
+```
+
+
 
 #### Database Preparation
 In order to create the database, files can be downloaded from the database page.

@@ -10,9 +10,12 @@ import re
 import tempfile
 import shutil
 import xml.etree.ElementTree as ET
-import urllib.request
+try:
+    from urllib.request import urlopen, urlretrieve
+except ImportError:
+        from urllib import urlopen, urlretrieve
 import argparse
-version = """ stringMLST v0.3.2 (updated : January 27, 2017) """
+version = """ stringMLST v0.3.4 (updated : February 15, 2017) """
 """
 LICENSE TERMS FOR stringMLST
 1. INTENT/PURPOSE:
@@ -75,7 +78,7 @@ def get_links(speciesName,schemes):
     global loci
     loci = {}
     URL="http://pubmlst.org/data/dbases.xml"
-    xml = urllib.request.urlopen(URL)
+    xml = urlopen(URL)
     tree = ET.parse(xml)
     root = tree.getroot()
     for species in root:
@@ -96,21 +99,19 @@ def get_links(speciesName,schemes):
 # Output     : Downloads files and builds database
 #############################################################
 def get_files(profileURL):
-
     with open(config, "w") as configFile:
         configFile.write("[loci]\n")
         for file in loci:
-            localFile = dbPrefix + "_" + file + ".tfa"
-            localFfile, headers = urllib.request.urlretrieve(loci[file],localFile)
-            configFile.write(file + "\t" + dbPrefix + "_" + file + ".tfa\n")
-        localFile = dbPrefix + "_" + species + "_profile.txt"
-        localFile, headers = urllib.request.urlretrieve(profileURL,localFile)
+            localFile = filePrefix + "_" + file + ".tfa"
+            localFfile, headers = urlretrieve(loci[file],localFile)
+            configFile.write(file + "\t" + filePrefix + "_" + file + ".tfa\n")
+        localFile = filePrefix + "_profile.txt"
+        localFile, headers = urlretrieve(profileURL,localFile)
         configFile.write("[profile]\n")
-        configFile.write("profile\t" + dbPrefix + "_" + species + "_profile.txt\n")
+        configFile.write("profile\t" + filePrefix + "_profile.txt\n")
         configFile.close()
-
-        makeCustomDB(config,k,dbPrefix)
-#############################################################
+        makeCustomDB(config,k,filePrefix)
+############################################################
 # Function   : batchTool
 # Input      : Directory name, paired or single, k value
 # Output     : STs and allelic profiles for each FASTQ file
@@ -682,11 +683,11 @@ def formKmerDB(configDict, k, output_filename):
             sum += l
             n += 1
             try:
-                (loc, num) = allele.split('_')
+                (loc, num) =  allele.replace('-','_').rsplit('_',1)
             except ValueError:
-                print("Error : Allele name in locus file should be seperated by _")
-                exit(0)
-            splitId = allele.split('_')
+                print("Error : Allele name in locus file should be seperated by '_' or '-'")
+                exit(0) 
+            splitId =  allele.replace('-','_').rsplit('_',1)
             i = 0
             while i+k <= l:
                 kmer = seq[i:i+k]
@@ -952,14 +953,13 @@ Optional arguments
 =============================================================================================
 3. stringMLST.py --getMLST
 Synopsis:
-stringMLST.py --getMLST -c <config file> --species= <species> -k [kmer length] -P [DB prefix]
+stringMLST.py --getMLST --species= <species> [-k kmer length] [-P DB prefix]
 Required arguments
 --getMLST
     Identifier for getMLST module
--c,--config = <configuration file>
-    Save path for configuration file
 --species= <species name>
     Species name from the pubMLST schemes (use --schemes to get list of available schemes)
+    "all" will download and build all 
 Optional arguments
 -k = <kmer length>
     Kmer size for which the db has to be formed(Default k = 35). Note the tool works best with kmer length in between 35 and 66
@@ -994,7 +994,7 @@ Example usage:
 1) List available schemes
  ./stringMLST.py --getMLST --schemes
 2) Download the Neisseria spp. pubMLST scheme
-  ./stringMLST.py --getMLST -c datasets/nmb.config --species=neisseria -P datasets/nmb
+  ./stringMLST.py --getMLST --species=neisseria -P datasets/nmb
 """
 helpTextSmall = """
 Usage
@@ -1092,14 +1092,13 @@ Optional arguments
 =============================================================================================
 3. stringMLST.py --getMLST
 Synopsis:
-stringMLST.py --getMLST -c <config file> --species= <species> -k [kmer length] -P [DB prefix]
+stringMLST.py --getMLST --species= <species> [-k kmer length] [-P DB prefix]
 Required arguments
 --getMLST
     Identifier for getMLST module
--c,--config = <configuration file>
-    Save path for configuration file
 --species= <species name>
     Species name from the pubMLST schemes (use --schemes to get list of available schemes)
+    "all" will download and build all 
 Optional arguments
 -k = <kmer length>
     Kmer size for which the db has to be formed(Default k = 35). Note the tool works best with kmer length in between 35 and 66
@@ -1136,7 +1135,7 @@ schemes = {"achromobacter" : "Achromobacter spp.",
 "brucella" : "Brucella spp.",
 "burkholderia-cepacia-complex" : "Burkholderia cepacia complex",
 "burkholderia-pseudomallei" : "Burkholderia pseudomallei",
-"campylobacter-concisus/curvus" : "Campylobacter concisus/curvus",
+"campylobacter-concisus-curvus" : "Campylobacter concisus/curvus",
 "campylobacter-fetus" : "Campylobacter fetus",
 "campylobacter-helveticus" : "Campylobacter helveticus",
 "campylobacter-hyointestinalis" : "Campylobacter hyointestinalis",
@@ -1216,7 +1215,6 @@ schemes = {"achromobacter" : "Achromobacter spp.",
 "stapylococcus-hominis" : "Stapylococcus hominis",
 "stenotrophomonas-maltophilia" : "Stenotrophomonas maltophilia",
 "s.agalactiae" : "Streptococcus agalactiae",
-"s.bovis" : "Streptococcus bovis/equinus complex (SBSeC)",
 "s.canis" : "Streptococcus canis",
 "s.dysgalactiae-equisimilis" : "Streptococcus dysgalactiae equisimilis",
 "s.gallolyticus" : "Streptococcus gallolyticus",
@@ -1396,20 +1394,40 @@ elif predict is True:
         getCoverage(results)
     printResults(results, output_filename, overwrite, timeDisp)
 elif downloadDB is True:
-    if config is None:
-        print(helpTextSmall)
-        exit(0)
+    global filePrefix
     if species is None:
-        print ("Please refer to the the --help to more information")
+        print ("Please refer to --help to more information")
         print()
         print ("Expected command format:")
-        print("stringMLST.py --getMLST -c <config file> --species= <species> -k [kmer length] -P [DB prefix]")
+        print("stringMLST.py --getMLST --species= <species> [-k kmer length] [-P DB prefix]")
         print ()
         print("Available MLST Schemes:")
         print (", ".join(sorted(schemes.keys())))
         exit(0)
-    profileURL = get_links(species,schemes)
-    get_files(profileURL)
+    elif species == "all":
+        print("Using a kmer size of " + str(k) + " for all databases.")
+        for key in sorted(schemes.keys()):
+            filePrefix = str(dbPrefix.rsplit("/",1)[0]) + "/" + key
+            print ("Preparing: " + schemes[key] + " ( " + filePrefix + "/" + key + "_" +str(k) + " )")
+            try:
+                os.makedirs(filePrefix)
+            except OSError:
+               pass
+            filePrefix = filePrefix + "/" + key
+            config = filePrefix + "_config.txt" 
+            profileURL = get_links(key,schemes)
+            get_files(profileURL)
+    else:
+        try:
+            os.makedirs(dbPrefix.rsplit("/",1)[0])
+        except OSError:
+            pass
+        filePrefix = dbPrefix
+        config = filePrefix + "_config.txt"
+        profileURL = get_links(species,schemes)
+        get_files(profileURL)
+        print("Database ready for " + schemes[species])
+        print( filePrefix)
 else:
     print(helpTextSmall)
     print("Error: Please select the mode: buildDB (for database building) or predict (for ST discovery) module")
