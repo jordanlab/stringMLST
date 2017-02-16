@@ -12,10 +12,36 @@ Application Note
 *http://bioinformatics.oxfordjournals.org/content/early/2016/09/06/bioinformatics.btw586.full.pdf+html*
 
 
-## Installing stringMLST via pip
+## Recommended installation method
 
 ```
 pip install stringMLST
+
+```
+
+#### Installation via git 
+
+```
+git clone https://github.com/anujg1991/stringMLST
+# Optional, download prebuilt databases 
+cd stringMLST
+git submodule init
+git submodule update
+```
+
+## Quickstart guide
+
+```bash  
+pip install stringMLST  
+mkdir -p stringMLST_analysis; cd stringMLST_analysis  
+stringMLST.py --getMLST -P neisseria/nmb --species neisseria  
+# Download all available databases with:  
+# stringMLST.py --getMLST -P mlst_dbs --species all    
+wget  ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR026/ERR026529/ERR026529_1.fastq.gz ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR026/ERR026529/ERR026529_2.fastq.gz  
+stringMLST.py --predict -P neisseria/nmb -1 ERR026529_1.fastq.gz -2 ERR026529_2.fastq.gz
+Sample  abcZ    adk     aroE    fumC    gdh     pdhC    pgm     ST
+ERR026529       231     180     306     612     269     277     260     10174
+
 ```
 
 ## Python dependencies and external programs
@@ -35,7 +61,7 @@ bwa: 0.7.13-r1126
 
 ### To install the dependencies
 
-```
+```bash
 # pyfaidx
 pip install --user pyfaidx
 # samtools
@@ -71,46 +97,48 @@ download_example_reads.sh
 
 * Extract the MLST loci dataset.
 
-`unzip datasets/Neisseria_spp.zip -d datasets`
+```
+unzip datasets/Neisseria_spp.zip -d datasets
+```
 
 * Create or use a config file specifying the location of all the locus and profile files.
 Example config file (Neisseria_spp/config.txt):
 
 ```
 [loci]
-abcZ	datasets/Neisseria_spp/abcZ.fa
-adk	datasets/Neisseria_spp/adk.fa
-aroE	datasets/Neisseria_spp/aroE.fa
-fumC	datasets/Neisseria_spp/fumC.fa
-gdh	datasets/Neisseria_spp/gdh.fa
-pdhC	datasets/Neisseria_spp/pdhC.fa
-pgm	datasets/Neisseria_spp/pgm.fa
+abcZ  datasets/Neisseria_spp/abcZ.fa
+adk datasets/Neisseria_spp/adk.fa
+aroE  datasets/Neisseria_spp/aroE.fa
+fumC  datasets/Neisseria_spp/fumC.fa
+gdh datasets/Neisseria_spp/gdh.fa
+pdhC  datasets/Neisseria_spp/pdhC.fa
+pgm datasets/Neisseria_spp/pgm.fa
 [profile]
-profile	datasets/Neisseria_spp/neisseria.txt
+profile datasets/Neisseria_spp/neisseria.txt
 ```
 
 * Run stringMLST.py --buildDB to create DB. Choose a k value and prefix (optional).
 
 ```
-stringMLST.py --buildDB -c databases/Neisseria_spp/config.txt -k 35 -P NM	
+stringMLST.py --buildDB -c databases/Neisseria_spp/config.txt -k 35 -P NM 
 ```
 
 ### Predict:
 
 #### Single sample :
 ```
-stringMLST.py --predict -1 tests/fastqs/ERR026529_1.fastq -2 tests/fastqs/ERR026529_2.fastq -k 35 -P NM 	
+stringMLST.py --predict -1 tests/fastqs/ERR026529_1.fastq -2 tests/fastqs/ERR026529_2.fastq -k 35 -P NM   
 ```
 #### Batch mode (all the samples together):
 ```
-stringMLST.py --predict -d ./tests/fastqs/ -k 35 -P NM	
+stringMLST.py --predict -d ./tests/fastqs/ -k 35 -P NM  
 ```
 #### List mode:
 Create a list file (list_paired.txt) as :
 ```
-tests/fastqs/ERR026529_1.fastq	tests/fastqs/ERR026529_2.fastq
-tests/fastqs/ERR027250_1.fastq	tests/fastqs/ERR027250_2.fastq
-tests/fastqs/ERR036104_1.fastq	tests/fastqs/ERR036104_2.fastq
+tests/fastqs/ERR026529_1.fastq  tests/fastqs/ERR026529_2.fastq
+tests/fastqs/ERR027250_1.fastq  tests/fastqs/ERR027250_2.fastq
+tests/fastqs/ERR036104_1.fastq  tests/fastqs/ERR036104_2.fastq
 ```
 Run the tool as:
 ```
@@ -129,9 +157,9 @@ stringMLST's workflow is divided into two routines:
 *Database building:* Builds the stringMLST database which is used for assigning STs to input sample files. This step is required once for each organism. Please note that stringMLST is capable of working on a custom user defined typing scheme but its efficiency has not been tested on other typing scheme.
 
 *ST discovery:* This routine takes the database created in the last step and predicts the ST of the input sample(s). Please note that the database building is required prior to this routine. stringMLST is capable of processing single-end and paired-end files. It can run in three modes:
-*	Single sample mode - for running stringMLST on a single sample
-*	Batch mode - for running stringMLST on all the FASTQ files present in a directory
-*	List mode - for running stringMLST on all the FASTQ files provided in a list file
+* Single sample mode - for running stringMLST on a single sample
+* Batch mode - for running stringMLST on all the FASTQ files present in a directory
+* List mode - for running stringMLST on all the FASTQ files provided in a list file
 
 
 ```
@@ -169,32 +197,32 @@ There are two steps to predicting ST using stringMLST.
 
 Synopsis:
 stringMLST.py --buildDB -c <config file> -k <kmer length(optional)> -P <DB prefix(optional)>
-	config file : is a tab delimited file which has the information for typing scheme ie loci, its multifasta file and profile definition file.
-		Format : 
-			[loci]
-			locus1		locusFile1
-			locus2		locusFile2
-			[profile]
-			profile		profileFile
-	kmer length	: is the kmer length for the db. Note, while processing this should be smaller than the read length.
-		We suggest kmer lengths of 35, 66 depending on the read length.
-	DB prefix(optional) : holds the information for DB files to be created and their location. This module creates 3 files with this prefix.
-		You can use a folder structure with prefix to store your db at particular location.
+  config file : is a tab delimited file which has the information for typing scheme ie loci, its multifasta file and profile definition file.
+    Format : 
+      [loci]
+      locus1    locusFile1
+      locus2    locusFile2
+      [profile]
+      profile   profileFile
+  kmer length : is the kmer length for the db. Note, while processing this should be smaller than the read length.
+    We suggest kmer lengths of 35, 66 depending on the read length.
+  DB prefix(optional) : holds the information for DB files to be created and their location. This module creates 3 files with this prefix.
+    You can use a folder structure with prefix to store your db at particular location.
 
 Required arguments
 --buildDB
-	Identifier for build db module
+  Identifier for build db module
 -c,--config = <configuration file>
-	Config file in the format described above. 
-	All the files follow the structure followed by pubmlst. Refer extended document for details. 
+  Config file in the format described above. 
+  All the files follow the structure followed by pubmlst. Refer extended document for details. 
 
-Optional arguments	
+Optional arguments  
 -k = <kmer length>
-	Kmer size for which the db has to be formed(Default k = 35). Note the tool works best with kmer length in between 35 and 66
-	for read lengths of 55 to 150 bp. Kmer size can be increased accordingly. It is advised to keep lower kmer sizes 
-	if the quality of reads is not very good.
+  Kmer size for which the db has to be formed(Default k = 35). Note the tool works best with kmer length in between 35 and 66
+  for read lengths of 55 to 150 bp. Kmer size can be increased accordingly. It is advised to keep lower kmer sizes 
+  if the quality of reads is not very good.
 -P,--prefix = <prefix>
-	Prefix for db and log files to be created(Default = kmer). Also you can specify folder where you want the dbb to be created.
+  Prefix for db and log files to be created(Default = kmer). Also you can specify folder where you want the dbb to be created.
 -a
         File location to write build log
 -h,--help
@@ -203,7 +231,7 @@ Optional arguments
  --------------------------------------------------------------------------------------------
  
 2. stringMLST.py --predict
-	
+  
 stringMLST --predict : can run in three modes
   1) single sample (default mode)
   2) batch mode : run stringMLST for all the samples in a folder (for a particular specie)
@@ -215,8 +243,8 @@ stringMLST.py --predict -1 <fastq file> -2 <fastq file> -d <directory location> 
 
 Required arguments
 --predict
-	Identifier for predict miodule
-	
+  Identifier for predict miodule
+  
 Optional arguments
 -1,--fastq1 = <fastq1_filename>
   Path to first fastq file for paired end sample and path to the fastq file for single end file.
@@ -227,8 +255,8 @@ Optional arguments
 -d,--dir,--directory = <directory>
   BATCH MODE : Location of all the samples for batch mode.
 -C,--coverage
-	Calculate seqence coverage for each allele. Turns on read generation (-r) and turns off fuzzy (-z 1)
-	Requires bwa, bamtools and samtools be in your path
+  Calculate seqence coverage for each allele. Turns on read generation (-r) and turns off fuzzy (-z 1)
+  Requires bwa, bamtools and samtools be in your path
 -k = <kmer_length>
   Kmer length for which the db was created(Default k = 35). Could be verified by looking at the name of the db file. 
   Could be used if the reads are of very bad quality or have a lot of N's.
@@ -242,7 +270,7 @@ Optional arguments
   Flag for specifying paired end files. Default option so would work the same if you do not specify for all modes.
   For batch mode the paired end samples should be differentiated by 1/2.fastq or 1/2.fq
 -P,--prefix = <prefix>
-	Prefix using which the db was created(Defaults = kmer). The location of the db could also be provided.
+  Prefix using which the db was created(Defaults = kmer). The location of the db could also be provided.
 -r
   A seperate reads file is created which has all the reads covering all the locus.
 -s,--single
@@ -255,8 +283,8 @@ Optional arguments
   By default stringMLST appends the results to the output_filename if same name is used.
   This argument overwrites the previously specified output file.
 -z,--fuzzy = <fuzzy threshold int>
-	Threshold for reporting a fuzzy match (Default=300). For higher coverage reads this threshold should be set higher to avoid
-	indicating fuzzy match when exact match was more likely. For lower coverage reads, threshold of <100 is recommended
+  Threshold for reporting a fuzzy match (Default=300). For higher coverage reads this threshold should be set higher to avoid
+  indicating fuzzy match when exact match was more likely. For lower coverage reads, threshold of <100 is recommended
 -h,--help
   Prints the help manual for this application
 
@@ -306,7 +334,7 @@ NA10831_ATCACG_L002_R1_001.fastq.gz
 
 ## Running stringMLST
 
-#### Inlcuded databases and automated retrieval of databases from pubMLST
+#### Included databases and automated retrieval of databases from pubMLST
 
 stringMLST includes all the pubMLST databases as of **February 15, 2017**, built with the default kmer (*35*). They can be found in the `datasets/` folder.  
 Simply unzip the databases you need and begin using stringMSLT as desbribed below.
@@ -360,11 +388,11 @@ Download these files at a desired location.
 
 Custom user files can also be used for building database. The database building routine requires the profile definition file and allele sequence file. The profile definition file is a tab separated file that contains the ST and the allele profile corresponding to the ST. An example of the profile definition file is shown below:
 ```
-ST	abcZ	adk	aroE	fumC	gdh	pdhC	pgm	clonal_complex
-1	1	3	1	1	1	1	3	ST-1 complex/subgroup I/II
-2	1	3	4	7	1	1	3	ST-1 complex/subgroup I/II
-3	1	3	1	1	1	23	13	ST-1 complex/subgroup I/II
-4	1	3	3	1	4	2	3	ST-4 complex/subgroup IV
+ST  abcZ  adk aroE  fumC  gdh pdhC  pgm clonal_complex
+1 1 3 1 1 1 1 3 ST-1 complex/subgroup I/II
+2 1 3 4 7 1 1 3 ST-1 complex/subgroup I/II
+3 1 3 1 1 1 23  13  ST-1 complex/subgroup I/II
+4 1 3 3 1 4 2 3 ST-4 complex/subgroup IV
 ```
 The allele sequence file is a standard multi-FASTA with the description being the loci name with the allele number. An example abcZ allele sequence is shown below:
 ```
@@ -383,16 +411,16 @@ These files can be obtained from PubMLST/BIGSdb or can be create by the user the
 In either case, an accompanying configuration file is also required to describe the profile definition and allele sequence files. An example configuration file is shown below:
 ```
 [loci]
-abcZ	/data/home/stringMLST/pubmlst/Neisseria_sp/abcZ.fa
-adk	/data/home/stringMLST/pubmlst/Neisseria_sp/adk.fa
-aroE	/data/home/stringMLST/pubmlst/Neisseria_sp/aroE.fa
-fumC	/data/home/stringMLST/pubmlst/Neisseria_sp/fumC.fa
-gdh	/data/home/stringMLST/pubmlst/Neisseria_sp/gdh.fa
-pdhC	/data/home/stringMLST/pubmlst/Neisseria_sp/pdhC.fa
-pgm	/data/home/stringMLST/pubmlst/Neisseria_sp/pgm.fa
+abcZ  /data/home/stringMLST/pubmlst/Neisseria_sp/abcZ.fa
+adk /data/home/stringMLST/pubmlst/Neisseria_sp/adk.fa
+aroE  /data/home/stringMLST/pubmlst/Neisseria_sp/aroE.fa
+fumC  /data/home/stringMLST/pubmlst/Neisseria_sp/fumC.fa
+gdh /data/home/stringMLST/pubmlst/Neisseria_sp/gdh.fa
+pdhC  /data/home/stringMLST/pubmlst/Neisseria_sp/pdhC.fa
+pgm /data/home/stringMLST/pubmlst/Neisseria_sp/pgm.fa
 
 [profile]
-profile	/data/home/stringMLST/pubmlst/Neisseria_sp/neisseria.txt
+profile /data/home/stringMLST/pubmlst/Neisseria_sp/neisseria.txt
 ```
 
 This file is pre-packed on stringMLSTs website and can easily be created by the user for custom database.
@@ -409,9 +437,9 @@ Example:
 stringMLST.py --buildDB --config config.txt -k 35 -P NM
 ```
 This command will produce 3 database files and a log file. The log file is used for debugging purposes in the event an error is encountered. The 3 database files created are:
-*	<prefix>_<k-mer>.txt : The main database file for the application. This is a tab delimited file describing k-mer to locus relationship.
-*	<prefix>_weight.txt : Contains the weight factors for alleles which differ in lengths by more than 5%. Will be empty otherwise.
-*	<prefix>_profile.txt : Profile definition file used for finding the ST from the predicted allelic profile.
+* <prefix>_<k-mer>.txt : The main database file for the application. This is a tab delimited file describing k-mer to locus relationship.
+* <prefix>_weight.txt : Contains the weight factors for alleles which differ in lengths by more than 5%. Will be empty otherwise.
+* <prefix>_profile.txt : Profile definition file used for finding the ST from the predicted allelic profile.
 
 For the example above, the following files will be created:
 NM_35.txt, NM_weight.txt and NM_profile.txt
@@ -420,11 +448,11 @@ Please note that in the prediction routine the database is identified with the p
 
 ST discovery routine
 As discussed earlier, StringMLST has 3 running modes 
-*	Single sample mode - for running stringMLST on a single sample
-*	Batch mode - for running stringMLST on all the FASTQ files present in a directory
-*	List mode - for running stringMLST on all the FASTQ files provided in a list file
+* Single sample mode - for running stringMLST on a single sample
+* Batch mode - for running stringMLST on all the FASTQ files present in a directory
+* List mode - for running stringMLST on all the FASTQ files provided in a list file
 
-####	Single sample mode: 
+####  Single sample mode: 
 This is the default mode for stringMLST and takes in one sample at a time. The sample can be single-end or paired-end. The sample has to be in FASTQ format. In order to run, the user should know the prefix of the database created and the k-mer size. 
 
 By default, the tool expects paired-end samples.
@@ -435,7 +463,7 @@ stringMLST.py --predict -1 <paired-end file 1> -2 <paired-end file 2> -p --prefi
 ```
 stringMLST.py --predict -1 <single-end file> -s --prefix <prefix for the database> -k <k-mer size> -o <output file name>
 ```
-####	Batch Mode: 
+####  Batch Mode: 
 This mode can be used for processing multiple files with one command. All the samples will be queried against the same database. Also all samples should be in the same directory. All the samples will be treated either as single-end or paired-end. The paired-end samples should be differentiated with the character _1 and _2 at the end (E.g.: sampleX_1.fastq and sampleX_2.fastq).
 
 *Paired-end samples:*
@@ -461,12 +489,12 @@ A sample list file for single-end sample looks like the following.
 A sample list file for paired-end sample looks like the following.
 
 ```
-<full path of sample 1 fastq file 1>	<full path of sample 1 fastq file 2>
-<full path of sample 2 fastq file 1>	<full path of sample 2 fastq file 2>
-<full path of sample 3 fastq file 1>	<full path of sample 3 fastq file 2>
+<full path of sample 1 fastq file 1>  <full path of sample 1 fastq file 2>
+<full path of sample 2 fastq file 1>  <full path of sample 2 fastq file 2>
+<full path of sample 3 fastq file 1>  <full path of sample 3 fastq file 2>
 .
 .
-<full path of sample n fastq file 1>	<full path of sample n fastq file 2>
+<full path of sample n fastq file 1>  <full path of sample n fastq file 2>
 ```
 
 Once the user has the list file, he can directly use the tool.
