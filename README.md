@@ -11,6 +11,13 @@ Abstract
 Application Note
 *http://bioinformatics.oxfordjournals.org/content/early/2016/09/06/bioinformatics.btw586.full.pdf+html*
 
+
+## Installing stringMLST via pip
+
+```
+pip install stringMLST
+```
+
 ## Python dependencies and external programs
 
 stringMLST does not require any python dependencies for basic usage (Building databases and predicting STs). 
