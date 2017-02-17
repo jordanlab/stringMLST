@@ -2,17 +2,17 @@
 Fast k-mer based tool for multi locus sequence typing (MLST)
 stringMLST is a tool for detecting the MLST of an isolate directly from the genome sequencing reads. stringMLST predicts the ST of an isolate in a completely assembly and alignment free manner. The tool is designed in a light-weight, platform-independent fashion with minimum dependencies.
 
-Reference
+Reference  
 *http://jordan.biology.gatech.edu/page/software/stringmlst/*
 
-Abstract
+Abstract  
 *http://bioinformatics.oxfordjournals.org/content/early/2016/09/06/bioinformatics.btw586.short?rss=1*
 
-Application Note
+Application Note  
 *http://bioinformatics.oxfordjournals.org/content/early/2016/09/06/bioinformatics.btw586.full.pdf+html*
 
 
-**stringMLST is a *tool* not a *database***, always use the most up-to-date database files as possible. To facilite
+**stringMLST is a *tool* not a *database*, always use the most up-to-date database files as possible.** To facilitate
 keeping your databases updated, stringMLST can download and build databases from pubMLST using the most recent allele
 and profile definitions. Please see the "Included databases and automated retrieval of databases from pubMLST" section
 below for instructions. *The databases bundled here are for convenience only, do not rely on them being up-to-date*.
@@ -24,10 +24,10 @@ pip install stringMLST
 
 ```
 
-#### Installation via git 
+#### Installation via git (Not recommended for most users)
 
 ```
-git clone https://github.com/anujg1991/stringMLST
+git clone https://github.com/jordanlab/stringMLST
 # Optional, download prebuilt databases 
 cd stringMLST
 git submodule init
@@ -253,10 +253,10 @@ Required arguments
 Optional arguments
 -1,--fastq1 = <fastq1_filename>
   Path to first fastq file for paired end sample and path to the fastq file for single end file.
-  Should have extention fastq or fq.
+  Should have extension fastq or fq.
 -2,--fastq2 = <fastq2_filename>
   Path to second fastq file for paired end sample.
-  Should have extention fastq or fq.
+  Should have extension fastq or fq.
 -d,--dir,--directory = <directory>
   BATCH MODE : Location of all the samples for batch mode.
 -C,--coverage
@@ -342,7 +342,7 @@ NA10831_ATCACG_L002_R1_001.fastq.gz
 #### Included databases and automated retrieval of databases from pubMLST
 
 stringMLST includes all the pubMLST databases as of **February 15, 2017**, built with the default kmer (*35*). They can be found in the `datasets/` folder.  
-Simply unzip the databases you need and begin using stringMSLT as desbribed below.
+Simply unzip the databases you need and begin using stringMSLT as described below.
 
 All the databases from pubMLST can be downloaded and prepared with your kmer choice
 
@@ -352,7 +352,7 @@ stringMLST.py --getMLST -P datasets/ --species all
 ```
 
 
-Individual databases from pubMLST can also be downloaded as needed, using the scheme indentifiers
+Individual databases from pubMLST can also be downloaded as needed, using the scheme identifiers
 
 *Downloading a scheme*  
 ```

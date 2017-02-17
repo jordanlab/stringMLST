@@ -12,7 +12,7 @@ setup(
   description = 'Fast k-mer based tool for alignment and assembly-free multi locus sequence typing (MLST) directly from genome sequencing reads.',
   author = 'Jordan Lab',
   author_email = 'pypi@atc.io',
-  url = 'https://github.com/anujg1991/stringMLST',
+  url = 'https://github.com/jordanlab/stringMLST',
   keywords = ['MLST', 'kmer', "NGS", "stringMSLT"], 
   classifiers = [
       'Programming Language :: Python :: 2.7',
