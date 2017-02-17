@@ -12,6 +12,11 @@ Application Note
 *http://bioinformatics.oxfordjournals.org/content/early/2016/09/06/bioinformatics.btw586.full.pdf+html*
 
 
+**stringMLST is a *tool* not a *database***, always use the most up-to-date database files as possible. To facilite
+keeping your databases updated, stringMLST can download and build databases from pubMLST using the most recent allele
+and profile definitions. Please see the "Included databases and automated retrieval of databases from pubMLST" section
+below for instructions. *The databases bundled here are for convenience only, do not rely on them being up-to-date*.
+
 ## Recommended installation method
 
 ```
