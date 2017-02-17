@@ -15,7 +15,7 @@ try:
 except ImportError:
         from urllib import urlopen, urlretrieve
 import argparse
-version = """ stringMLST v0.3.5 (updated : February 16, 2017) """
+version = """ stringMLST v0.3.6 (updated : February 16, 2017) """
 """
 LICENSE TERMS FOR stringMLST
 1. INTENT/PURPOSE:
@@ -1422,7 +1422,17 @@ elif downloadDB is True:
             os.makedirs(dbPrefix.rsplit("/",1)[0])
         except OSError:
             pass
-        filePrefix = dbPrefix
+        if len(re.findall("/", dbPrefix)) == 0:
+            filePrefix = dbPrefix + "/" + species
+        elif len(re.findall("/", dbPrefix)) == 1 and len(dbPrefix.rsplit("/",1)[1]) > 0:
+            filePrefix = dbPrefix
+        elif len(re.findall("/", dbPrefix)) == 1 and len(dbPrefix.rsplit("/",1)[1]) == 0:
+            filePrefix = dbPrefix + species
+        elif len(re.findall("/", dbPrefix)) > 1:
+            if dbPrefix.endswith('/'):
+                filePrefix = dbPrefix + species
+            else:
+                filePrefix = dbPrefix
         config = filePrefix + "_config.txt"
         profileURL = get_links(species,schemes)
         get_files(profileURL)
