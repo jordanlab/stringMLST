@@ -15,7 +15,7 @@ try:
 except ImportError:
         from urllib import urlopen, urlretrieve
 import argparse
-version = """ stringMLST v0.3.6 (updated : February 16, 2017) """
+version = """ stringMLST v0.3.6.1 (updated : February 27, 2017) """
 """
 LICENSE TERMS FOR stringMLST
 1. INTENT/PURPOSE:
@@ -519,8 +519,11 @@ def loadWeightDict(weightFile):
         lines = weightTableFile.readlines()
         for line in lines:
             array = line.rstrip().rsplit('\t')
-            loc = array[0].rsplit('_')[0]
-            allele = array[0].rsplit('_')[1]
+            try:
+               (loc, allele) =  array[0].replace('-','_').rsplit('_',1)
+            except ValueError:
+                print("Error : Allele name in locus file should be seperated by '_' or '-'")
+                exit(0) 
             if loc not in weightDict:
                 weightDict[loc] = {}
             weightDict[loc][allele] = float(array[1])
