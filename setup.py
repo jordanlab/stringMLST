@@ -5,11 +5,17 @@ try:
 except ImportError:
   from distutils.core import setup
 
+here = path.abspath(path.dirname(__file__))
+long_description="Fast k-mer based tool for alignment and assembly-free multi locus sequence typing (MLST) directly from genome sequencing reads."
+with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
+    long_description = f.read()
+
 setup(
   name = 'stringMLST',
   scripts = ['stringMLST.py'], 
-  version = '0.3.6.2',
+  version = '0.3.6.3',
   description = 'Fast k-mer based tool for alignment and assembly-free multi locus sequence typing (MLST) directly from genome sequencing reads.',
+  long_description=long_description,
   author = 'Jordan Lab',
   author_email = 'pypi@atc.io',
   url = 'https://github.com/jordanlab/stringMLST',

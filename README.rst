@@ -7,20 +7,64 @@ sequencing reads. stringMLST predicts the ST of an isolate in a
 completely assembly and alignment free manner. The tool is designed in a
 light-weight, platform-independent fashion with minimum dependencies.
 
-Reference *http://jordan.biology.gatech.edu/page/software/stringmlst/*
+| Reference
+| *http://jordan.biology.gatech.edu/page/software/stringmlst/*
 
-Abstract
-*http://bioinformatics.oxfordjournals.org/content/early/2016/09/06/bioinformatics.btw586.short?rss=1*
+| Abstract
+| *http://bioinformatics.oxfordjournals.org/content/early/2016/09/06/bioinformatics.btw586.short?rss=1*
 
-Application Note
-*http://bioinformatics.oxfordjournals.org/content/early/2016/09/06/bioinformatics.btw586.full.pdf+html*
+| Application Note
+| *http://bioinformatics.oxfordjournals.org/content/early/2016/09/06/bioinformatics.btw586.full.pdf+html*
 
-Installing stringMLST via pip
------------------------------
+**stringMLST is a *tool* not a *database*, always use the most
+up-to-date database files as possible.** To facilitate keeping your
+databases updated, stringMLST can download and build databases from
+pubMLST using the most recent allele and profile definitions. Please see
+the "Included databases and automated retrieval of databases from
+pubMLST" section below for instructions. *The databases bundled here are
+for convenience only, do not rely on them being up-to-date*.
+
+| stringMLST is licensed and distributed under `CC
+  Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA
+  4.0) <https://creativecommons.org/licenses/by-nc-sa/4.0>`__
+| and is free for academic users and requires permission before any
+  commercial use for any version of this code/algorithm.
+| If you are a commercial user, please contact
+  king.jordan@biology.gatech.edu for permissions
+
+Recommended installation method
+-------------------------------
 
 ::
 
     pip install stringMLST
+
+Installation via git (Not recommended for most users)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+::
+
+    git clone https://github.com/jordanlab/stringMLST
+    # Optional, download prebuilt databases  
+    # We don't recommend this method, instead build the databases locally
+    cd stringMLST
+    git submodule init
+    git submodule update
+
+Quickstart guide
+----------------
+
+.. code:: bash
+
+    pip install stringMLST  
+    mkdir -p stringMLST_analysis; cd stringMLST_analysis  
+    stringMLST.py --getMLST -P neisseria/nmb --species neisseria  
+    # Download all available databases with:  
+    # stringMLST.py --getMLST -P mlst_dbs --species all    
+    wget  ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR026/ERR026529/ERR026529_1.fastq.gz ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR026/ERR026529/ERR026529_2.fastq.gz  
+    stringMLST.py --predict -P neisseria/nmb -1 ERR026529_1.fastq.gz -2 ERR026529_2.fastq.gz
+    Sample  abcZ    adk     aroE    fumC    gdh     pdhC    pgm     ST
+    ERR026529       231     180     306     612     269     277     260     10174
 
 Python dependencies and external programs
 -----------------------------------------
@@ -44,7 +88,7 @@ stringMLST has been tested with:
 To install the dependencies
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-::
+.. code:: bash
 
     # pyfaidx
     pip install --user pyfaidx
@@ -81,7 +125,9 @@ Usage for Example Read Files (Neisseria meningitidis)
 
 -  Extract the MLST loci dataset.
 
-``unzip datasets/Neisseria_spp.zip -d datasets``
+::
+
+    unzip datasets/Neisseria_spp.zip -d datasets
 
 -  Create or use a config file specifying the location of all the locus
    and profile files. Example config file (Neisseria\_spp/config.txt):
@@ -255,10 +301,10 @@ FASTQ files provided in a list file
     Optional arguments
     -1,--fastq1 = <fastq1_filename>
       Path to first fastq file for paired end sample and path to the fastq file for single end file.
-      Should have extention fastq or fq.
+      Should have extension fastq or fq.
     -2,--fastq2 = <fastq2_filename>
       Path to second fastq file for paired end sample.
-      Should have extention fastq or fq.
+      Should have extension fastq or fq.
     -d,--dir,--directory = <directory>
       BATCH MODE : Location of all the samples for batch mode.
     -C,--coverage
@@ -342,10 +388,10 @@ NA10831\_ATCACG\_L002\_R1\_001.fastq.gz
 
     ## Running stringMLST
 
-    #### Inlcuded databases and automated retrieval of databases from pubMLST
+    #### Included databases and automated retrieval of databases from pubMLST
 
     stringMLST includes all the pubMLST databases as of **February 15, 2017**, built with the default kmer (*35*). They can be found in the `datasets/` folder.  
-    Simply unzip the databases you need and begin using stringMSLT as desbribed below.
+    Simply unzip the databases you need and begin using stringMSLT as described below.
 
     All the databases from pubMLST can be downloaded and prepared with your kmer choice
 
@@ -357,7 +403,7 @@ stringMLST.py --getMLST -P datasets/ --species all
 
 
 
-    Individual databases from pubMLST can also be downloaded as needed, using the scheme indentifiers
+    Individual databases from pubMLST can also be downloaded as needed, using the scheme identifiers
 
     *Downloading a scheme*  
 

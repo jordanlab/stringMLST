@@ -1,4 +1,5 @@
 # stringMLST
+
 Fast k-mer based tool for multi locus sequence typing (MLST)
 stringMLST is a tool for detecting the MLST of an isolate directly from the genome sequencing reads. stringMLST predicts the ST of an isolate in a completely assembly and alignment free manner. The tool is designed in a light-weight, platform-independent fashion with minimum dependencies.
 
@@ -17,6 +18,10 @@ keeping your databases updated, stringMLST can download and build databases from
 and profile definitions. Please see the "Included databases and automated retrieval of databases from pubMLST" section
 below for instructions. *The databases bundled here are for convenience only, do not rely on them being up-to-date*.
 
+stringMLST is licensed and distributed under [CC Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)](https://creativecommons.org/licenses/by-nc-sa/4.0)  
+and is free for academic users and requires permission before any commercial use for any version of this code/algorithm.  
+If you are a commercial user, please contact king.jordan@biology.gatech.edu for permissions
+
 ## Recommended installation method
 
 ```
@@ -28,7 +33,8 @@ pip install stringMLST
 
 ```
 git clone https://github.com/jordanlab/stringMLST
-# Optional, download prebuilt databases 
+# Optional, download prebuilt databases  
+# We don't recommend this method, instead build the databases locally
 cd stringMLST
 git submodule init
 git submodule update
