@@ -4,7 +4,7 @@ try:
   from setuptools import setup, find_packages
 except ImportError:
   from distutils.core import setup
-
+from os import path
 here = path.abspath(path.dirname(__file__))
 long_description="Fast k-mer based tool for alignment and assembly-free multi locus sequence typing (MLST) directly from genome sequencing reads."
 with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
