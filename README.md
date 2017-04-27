@@ -12,6 +12,9 @@ Abstract
 Application Note  
 *http://bioinformatics.oxfordjournals.org/content/early/2016/09/06/bioinformatics.btw586.full.pdf+html*
 
+[![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat-square)](http://bioconda.github.io/recipes/stringmlst/README.html)
+
+
 
 **stringMLST is a *tool* not a *database*, always use the most up-to-date database files as possible.** To facilitate
 keeping your databases updated, stringMLST can download and build databases from pubMLST using the most recent allele
