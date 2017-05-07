@@ -336,7 +336,7 @@ Optional arguments
 
 *Periods (.) are disallowed delimiters except for file extensions*
 
-````
+```
 Illumina FASTQ files use the following naming scheme:
 
 <sample name>_<barcode sequence>_L<lane (0-padded to 3 digits)>_R<read number>_<set number (0-padded to 3 digits>.fastq.gz
