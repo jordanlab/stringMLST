@@ -16,7 +16,7 @@ try:
 except ImportError:
         from urllib import urlopen, urlretrieve
 import argparse
-version = """ stringMLST v0.3.6.3 (updated : April 18, 2017) """
+version = """ stringMLST v0.4 (updated : May 17, 2017) """
 """
 
 stringMLST free for academic users and requires permission before any commercial 
@@ -281,19 +281,30 @@ def get_links(speciesName,schemes):
 # Input      : URLs from get_links
 # Output     : Downloads files and builds database
 #############################################################
-def get_files(profileURL):
+def get_files(profileURL,species):
     with open(config, "w") as configFile:
         configFile.write("[loci]\n")
         for file in loci:
             localFile = filePrefix + "_" + file + ".tfa"
-            localFfile, headers = urlretrieve(loci[file],localFile)
+            try:
+                localFfile, headers = urlretrieve(loci[file],localFile)
+            except:
+                print( '\033[91m' + "There was an error downloading " + file + '\033[0m')
+                pass 
             configFile.write(file + "\t" + filePrefix + "_" + file + ".tfa\n")
         localFile = filePrefix + "_profile.txt"
         localFile, headers = urlretrieve(profileURL,localFile)
         configFile.write("[profile]\n")
         configFile.write("profile\t" + filePrefix + "_profile.txt\n")
         configFile.close()
-        makeCustomDB(config,k,filePrefix)
+        try:
+            makeCustomDB(config,k,filePrefix)
+        except:
+            print( '\033[91m' + "Failed to create database " + schemes[species] + '\033[0m' )
+            pass
+        else:
+            print("\t" + '\033[92m' + "Database ready for " + schemes[species] + '\033[0m')
+            print( "\t" + filePrefix)
 ############################################################
 # Function   : batchTool
 # Input      : Directory name, paired or single, k value
@@ -1382,7 +1393,7 @@ schemes = {"achromobacter" : "Achromobacter spp.",
 "orientia-tsutsugamushi" : "Orientia tsutsugamushi",
 "ornithobacterium-rhinotracheale" : "Ornithobacterium rhinotracheale",
 "paenibacillus-larvae" : "Paenibacillus larvae",
-#"pasteurella-multocida1" : "Pasteurella multocida#1",
+"pasteurella-multocida1" : "Pasteurella multocida#1",
 "pasteurella-multocida2" : "Pasteurella multocida#2",
 "pediococcus-pentosaceus" : "Pediococcus pentosaceus",
 "photobacterium-damselae" : "Photobacterium damselae",
@@ -1594,7 +1605,9 @@ elif downloadDB is True:
         print("Using a kmer size of " + str(k) + " for all databases.")
         for key in sorted(schemes.keys()):
             filePrefix = str(dbPrefix.rsplit("/",1)[0]) + "/" + key
-            print ("Preparing: " + schemes[key] + " ( " + filePrefix + "/" + key + "_" +str(k) + " )")
+            print ('\033[1m' + "Preparing: " + schemes[key] + '\033[0m') 
+            # Move the rest of this informational message into the download handler 
+            # + " ( " + filePrefix + "/" + key + "_" +str(k) + " )")
             try:
                 os.makedirs(filePrefix)
             except OSError:
@@ -1602,7 +1615,7 @@ elif downloadDB is True:
             filePrefix = filePrefix + "/" + key
             config = filePrefix + "_config.txt" 
             profileURL = get_links(key,schemes)
-            get_files(profileURL)
+            get_files(profileURL,key)
     else:
         try:
             os.makedirs(dbPrefix.rsplit("/",1)[0])
@@ -1621,9 +1634,8 @@ elif downloadDB is True:
                 filePrefix = dbPrefix
         config = filePrefix + "_config.txt"
         profileURL = get_links(species,schemes)
-        get_files(profileURL)
-        print("Database ready for " + schemes[species])
-        print( filePrefix)
+        get_files(profileURL,species)
+
 else:
     print(helpTextSmall)
     print("Error: Please select the mode: buildDB (for database building) or predict (for ST discovery) module")
