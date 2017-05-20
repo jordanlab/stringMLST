@@ -458,7 +458,14 @@ def singleFileTool(fastq, k):
         print(msg)
 def fileExplorer(file, k, non_overlapping_window):
     if file.endswith('.gz'):
-        f = gzip.open(file, 'rb')
+        if os.path.isfile("/etc/lsb-release"):
+            with open("/etc/lsb-release", "r") as lsb_release:
+                lsb = dict(l.rstrip().split('=') for l in lsb_release)
+        if lsb["DISTRIB_RELEASE"] == "14.04" and sys.version_info[0] == 3:
+            sys.stderr.write("Ubuntu 14.04 and Python 3 detected.\nOpening gzipped files as text instead of binary.\n")
+            f = gzip.open(file, 'rt')
+        else:
+            f = gzip.open(file, 'rb')
     else:
         f = open(file)
     msg = "fileExplorer :" + file
