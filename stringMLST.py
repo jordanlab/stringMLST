@@ -15,7 +15,7 @@ try:
 except ImportError:
         from urllib import urlopen, urlretrieve
 import argparse
-version = """ stringMLST v0.4 (updated : May 17, 2017) """
+version = """ stringMLST v0.4.1 (updated : May 21, 2017) """
 """
 
 stringMLST free for academic users and requires permission before any commercial 
