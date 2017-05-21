@@ -13,7 +13,7 @@ with open(path.join(here, 'README.rst')) as f:
 setup(
   name = 'stringMLST',
   scripts = ['stringMLST.py'], 
-  version = '0.4.1,
+  version = '0.4.1',
   description = 'Fast k-mer based tool for alignment and assembly-free multi locus sequence typing (MLST) directly from genome sequencing reads.',
   long_description=long_description,
   author = 'Jordan Lab',
