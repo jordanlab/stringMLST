@@ -1106,18 +1106,18 @@ Synopsis
 stringMLST.py --predict -1 <fastq file> -2 <fastq file> -d <directory location> -l <list file> -p -s -P <DB prefix(optional)> -k <kmer length(optional)> -o <output file> -x
 Required arguments
 --predict
-    Identifier for predict miodule
+    Identifier for predict module
 Optional arguments
 -1,--fastq1 = <fastq1_filename>
   Path to first fastq file for paired end sample and path to the fastq file for single end file.
-  Should have extention fastq or fq.
+  Should have extension fastq or fq.
 -2,--fastq2 = <fastq2_filename>
   Path to second fastq file for paired end sample.
-  Should have extention fastq or fq.
+  Should have extension fastq or fq.
 -d,--dir,--directory = <directory>
   BATCH MODE : Location of all the samples for batch mode.
 -C,--coverage
-    Calculate seqence coverage for each allele. Turns on read generation (-r) and turns off fuzzy (-z 1)
+    Calculate sequence coverage for each allele. Turns on read generation (-r) and turns off fuzzy (-z 1)
     Requires bwa, bamtools and samtools be in your path
 -k = <kmer_length>
   Kmer length for which the db was created(Default k = 35). Could be verified by looking at the name of the db file.
@@ -1127,14 +1127,14 @@ Optional arguments
   list file should have full file paths for all the samples/files.
   Each sample takes one line. For paired end samples the 2 files should be tab separated on single line.
 -o,--output = <output_filename>
-  Prints the output to a file instead of stdio.
+  Prints the output to a file instead of stdout.
 -p,--paired
   Flag for specifying paired end files. Default option so would work the same if you do not specify for all modes.
   For batch mode the paired end samples should be differentiated by 1/2.fastq or 1/2.fq
 -P,--prefix = <prefix>
     Prefix using which the db was created(Defaults = kmer). The location of the db could also be provided.
 -r
-  A seperate reads file is created which has all the reads covering all the locus.
+  A separate reads file is created which has all the reads covering all the locus.
 -s,--single
   Flag for specifying single end files.
 -t
@@ -1236,7 +1236,7 @@ Optional arguments
     for read lengths of 55 to 150 bp. Kmer size can be increased accordingly. It is advised to keep lower kmer sizes
     if the quality of reads is not very good.
 -P,--prefix = <prefix>
-    Prefix for db and log files to be created(Default = kmer). Also you can specify folder where you want the dbb to be created.
+    Prefix for db and log files to be created(Default = kmer). Also you can specify folder where you want the db to be created.
 -h,--help
   Prints the help manual for this application
 ==============================================================================================
@@ -1245,18 +1245,18 @@ Synopsis
 stringMLST.py --predict -1 <fastq file> -2 <fastq file> -d <directory location> -l <list file> -p -s -P <DB prefix(optional)> -k <kmer length(optional)> -o <output file> -x
 Required arguments
 --predict
-    Identifier for predict miodule
+    Identifier for predict module
 Optional arguments
 -1,--fastq1 = <fastq1_filename>
   Path to first fastq file for paired end sample and path to the fastq file for single end file.
-  Should have extention fastq or fq.
+  Should have extension fastq or fq.
 -2,--fastq2 = <fastq2_filename>
   Path to second fastq file for paired end sample.
-  Should have extention fastq or fq.
+  Should have extension fastq or fq.
 -d,--dir,--directory = <directory>
   BATCH MODE : Location of all the samples for batch mode.
 -C,--coverage
-    Calculate seqence coverage for each allele. Turns on read generation (-r) and turns off fuzzy (-z 1)
+    Calculate sequence coverage for each allele. Turns on read generation (-r) and turns off fuzzy (-z 1)
     Requires bwa, bamtools and samtools be in your path
 -k = <kmer_length>
   Kmer length for which the db was created(Default k = 35). Could be verified by looking at the name of the db file.
@@ -1266,14 +1266,14 @@ Optional arguments
   list file should have full file paths for all the samples/files.
   Each sample takes one line. For paired end samples the 2 files should be tab separated on single line.
 -o,--output = <output_filename>
-  Prints the output to a file instead of stdio.
+  Prints the output to a file instead of stdout.
 -p,--paired
   Flag for specifying paired end files. Default option so would work the same if you do not specify for all modes.
   For batch mode the paired end samples should be differentiated by 1/2.fastq or 1/2.fq
 -P,--prefix = <prefix>
     Prefix using which the db was created(Defaults = kmer). The location of the db could also be provided.
 -r
-  A seperate reads file is created which has all the reads covering all the locus.
+  A separate reads file is created which has all the reads covering all the locus.
 -s,--single
   Flag for specifying single end files.
 -t
