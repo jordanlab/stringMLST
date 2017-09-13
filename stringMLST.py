@@ -15,7 +15,7 @@ try:
 except ImportError:
         from urllib import urlopen, urlretrieve
 import argparse
-version = """ stringMLST v0.4.1 (updated : May 21, 2017) """
+version = """ stringMLST v0.4.2 (updated : September 13, 2017) """
 """
 
 stringMLST free for academic users and requires permission before any commercial 
@@ -111,7 +111,7 @@ the Licensor to exercise the Licensed Rights under the terms and conditions of
 this Public License. Additional offer from the Licensor - Adapted Material.
 Every recipient of Adapted Material from You automatically receives an offer
 from the Licensor to exercise the Licensed Rights in the Adapted Material under
-the conditions of the Adapter’s License You apply. No downstream restrictions.
+the conditions of the Adapter's License You apply. No downstream restrictions.
 You may not offer or impose any additional or different terms or conditions on,
 or apply any Effective Technological Measures to, the Licensed Material if doing
 so restricts exercise of the Licensed Rights by any recipient of the Licensed
@@ -160,7 +160,7 @@ extent reasonably practicable. ShareAlike. In addition to the conditions in
 Section 3(a), if You Share Adapted Material You produce, the following
 conditions also apply.
 
-The Adapter’s License You apply must be a Creative Commons license with the same
+The Adapter's License You apply must be a Creative Commons license with the same
 License Elements, this version or later, or a BY-NC-SA Compatible License. You
 must include the text of, or the URI or hyperlink to, the Adapter's License You
 apply. You may satisfy this condition in any reasonable manner based on the
