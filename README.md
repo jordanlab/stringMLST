@@ -3,6 +3,11 @@
 Fast k-mer based tool for multi locus sequence typing (MLST)
 stringMLST is a tool for detecting the MLST of an isolate directly from the genome sequencing reads. stringMLST predicts the ST of an isolate in a completely assembly and alignment free manner. The tool is designed in a light-weight, platform-independent fashion with minimum dependencies.
 
+Some portions of the allele selection algorithm in stringMLST are patent
+pending.  Please refer to the PATENTS file for additional inforamation
+regarding licencing and use.
+
+
 Reference  
 *http://jordan.biology.gatech.edu/page/software/stringmlst/*
 
