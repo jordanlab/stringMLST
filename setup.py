@@ -7,8 +7,6 @@ except ImportError:
 from os import path
 here = path.abspath(path.dirname(__file__))
 long_description="Fast k-mer based tool for alignment and assembly-free multi locus sequence typing (MLST) directly from genome sequencing reads."
-with open(path.join(here, 'README.rst'), 'rb') as f:
-  long_description = f.read()
 
 setup(
   name = 'stringMLST',
