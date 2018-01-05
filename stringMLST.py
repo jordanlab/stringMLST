@@ -15,7 +15,7 @@ try:
 except ImportError:
         from urllib import urlopen, urlretrieve
 import argparse
-version = """ stringMLST v0.5 (updated : January 5, 2018) """
+version = """ stringMLST v0.5.1 (updated : January 5, 2018) """
 """
 
 stringMLST free for academic users and requires permission before any commercial 
@@ -515,7 +515,6 @@ def goodReads(read, k, non_overlapping_window):
         s = str(line[n:n+k])
         if s in kmerDict[k]:
             for probLoc in kmerDict[k][s]:
-                # print(probLoc)
                 if probLoc not in alleleCount:
                     alleleCount[probLoc] = {}
                 a = kmerDict[k][s][probLoc]
@@ -592,20 +591,21 @@ def getMaxCount(alleleCount, fileName):
             num_max2 = []
             compare = float(re.sub("\*$", "", str(max_n[loc])))
             for num in alleleCount[loc]:
-                if  alleleCount[loc][num] == compare:
+                if  float(re.sub("\*$", "", str(alleleCount[loc][num]))) == compare:
                     if "\*" in str(max_n[loc]):
                         insert = num + '*'
                         num_max.append(insert)
                     else:
                         num_max.append(num)
                     maxSupport[loc][num] = max_n[loc]
+
                 if  alleleCount[loc][num] == secondMax[loc]:
                     num_max2.append(num)
                     secondSupport[loc][num] = secondMax[loc]
             try:
                 finalProfileCount[loc] = num_max[0]
             except LookupError:
-                finalProfileCount[loc] = '0'
+                finalProfileCount[loc] = 'yes'
     msgs = "Max Support :" + fileName + " : " + str(maxSupport)
     logging.debug(msgs)
     msgs = "Second Max Support :" + fileName + " : " + str(secondSupport)
