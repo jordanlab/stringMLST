@@ -15,7 +15,7 @@ try:
 except ImportError:
         from urllib import urlopen, urlretrieve
 import argparse
-version = """ stringMLST v0.5.1 (updated : January 5, 2018) """
+version = """ stringMLST v0.5.1.1 (updated : January 5, 2018) """
 """
 
 stringMLST free for academic users and requires permission before any commercial 
@@ -605,7 +605,7 @@ def getMaxCount(alleleCount, fileName):
             try:
                 finalProfileCount[loc] = num_max[0]
             except LookupError:
-                finalProfileCount[loc] = 'yes'
+                finalProfileCount[loc] = 'NA'
     msgs = "Max Support :" + fileName + " : " + str(maxSupport)
     logging.debug(msgs)
     msgs = "Second Max Support :" + fileName + " : " + str(secondSupport)
