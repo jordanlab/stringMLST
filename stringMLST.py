@@ -15,7 +15,7 @@ try:
 except ImportError:
         from urllib import urlopen, urlretrieve
 import argparse
-version = """ stringMLST v0.4.2 (updated : September 13, 2017) """
+version = """ stringMLST v0.5 (updated : January 5, 2018) """
 """
 
 stringMLST free for academic users and requires permission before any commercial 
@@ -515,6 +515,7 @@ def goodReads(read, k, non_overlapping_window):
         s = str(line[n:n+k])
         if s in kmerDict[k]:
             for probLoc in kmerDict[k][s]:
+                # print(probLoc)
                 if probLoc not in alleleCount:
                     alleleCount[probLoc] = {}
                 a = kmerDict[k][s][probLoc]
@@ -558,6 +559,8 @@ def getMaxCount(alleleCount, fileName):
     maxSupport = {}
     secondSupport = {}
     finalProfileCount = {}
+    for locus in alleleNames:
+        finalProfileCount[locus] = {}
     num = ''
     for loc in alleleCount:
         n = 0
@@ -567,32 +570,42 @@ def getMaxCount(alleleCount, fileName):
                 m = n
                 n = alleleCount[loc][num]
         if n-m < fuzzy:
-            alleleCount[loc][num] = str(alleleCount[loc][num])+'*'
-            max_n[loc] = str(n)+'*'
+            try:
+                alleleCount[loc][num]
+            except:
+                pass
+            else:
+                alleleCount[loc][num] = str(alleleCount[loc][num])+'*'
+                max_n[loc] = str(n)+'*'
         else:
             max_n[loc] = n
         secondMax[loc] = m
     for loc in alleleCount:
-        maxSupport[loc] = {}
-        secondSupport[loc] = {}
-        num_max = []
-        num_max2 = []
-        compare = float(re.sub("\*$", "", str(max_n[loc])))
-        for num in alleleCount[loc]:
-            if  alleleCount[loc][num] == compare:
-                if "\*" in str(max_n[loc]):
-                    insert = num + '*'
-                    num_max.append(insert)
-                else:
-                    num_max.append(num)
-                maxSupport[loc][num] = max_n[loc]
-            if  alleleCount[loc][num] == secondMax[loc]:
-                num_max2.append(num)
-                secondSupport[loc][num] = secondMax[loc]
         try:
-            finalProfileCount[loc] = num_max[0]
-        except LookupError:
-            finalProfileCount[loc] = '0'
+            max_n[loc]
+        except:
+            pass
+        else:
+            maxSupport[loc] = {}
+            secondSupport[loc] = {}
+            num_max = []
+            num_max2 = []
+            compare = float(re.sub("\*$", "", str(max_n[loc])))
+            for num in alleleCount[loc]:
+                if  alleleCount[loc][num] == compare:
+                    if "\*" in str(max_n[loc]):
+                        insert = num + '*'
+                        num_max.append(insert)
+                    else:
+                        num_max.append(num)
+                    maxSupport[loc][num] = max_n[loc]
+                if  alleleCount[loc][num] == secondMax[loc]:
+                    num_max2.append(num)
+                    secondSupport[loc][num] = secondMax[loc]
+            try:
+                finalProfileCount[loc] = num_max[0]
+            except LookupError:
+                finalProfileCount[loc] = '0'
     msgs = "Max Support :" + fileName + " : " + str(maxSupport)
     logging.debug(msgs)
     msgs = "Second Max Support :" + fileName + " : " + str(secondSupport)
@@ -630,7 +643,8 @@ def findST(finalProfile, stProfile):
             exit(0)
     transformedFinalProfile = {}
     for gene, allele in finalProfile.items():
-        allele = re.sub("\*", "", allele)
+        if allele:
+            allele = re.sub("\*", "", allele)
         transformedFinalProfile[finalGeneToSTGene[gene]] = allele
         # Check to see if the dictionary is empty, if so then means no allele were found at all
         if bool(transformedFinalProfile) is False:
@@ -698,10 +712,13 @@ def loadKmerDict(dbFile):
     kmerTableDict = {}
     with open(dbFile, 'r') as kmerTableFile:
         lines = kmerTableFile.readlines()
+        global alleleNames
+        alleleNames = set()
         for line in lines:
             array = line.rstrip().rsplit('\t')
             kmerTableDict[array[0]] = {}
             kmerTableDict[array[0]][array[1]] = array[2][1:-1].rsplit(',')
+            alleleNames.add(array[1])
     return kmerTableDict
 #############################################################
 # Function   : loadWeightDict
@@ -820,7 +837,10 @@ def printResults(results, output_filename, overwrite, timeDisp):
         for l in sorted(results[s]):
             if l == 'ST' or l == 't':
                 continue
-            sample += '\t'+results[s][l]
+            if results[s][l]:
+                sample += '\t'+results[s][l]
+            else:
+                sample += '\tNA'
         if timeDisp is True:
             sample += '\t' + str(results[s]['ST']) + '\t%.2f ' %results[s]['t']
         else:
