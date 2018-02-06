@@ -592,7 +592,7 @@ def getMaxCount(alleleCount, fileName):
             compare = float(re.sub("\*$", "", str(max_n[loc])))
             for num in alleleCount[loc]:
                 if  float(re.sub("\*$", "", str(alleleCount[loc][num]))) == compare:
-                    if "\*" in str(max_n[loc]):
+                    if "*" in str(max_n[loc]):
                         insert = num + '*'
                         num_max.append(insert)
                     else:
@@ -777,7 +777,7 @@ def loadConfig(config):
 # Output     : Updates results to include coverage info
 #############################################################
 def getCoverage(results):
-    tmpdir = tempfile.mkdtemp()
+    tmpdir = "/data/home/achande3/stringmlst-iss36/stringMLST/tests"
     for sample in results:
         file = tmpdir +'/'+ sample + '.fasta'
         bed = tmpdir +'/'+ sample + '.bed'
