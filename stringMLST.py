@@ -797,7 +797,6 @@ def getCoverage(results):
         readBWA = sample+'_reads.fq'
         samtoolsVersion = float(os.popen('samtools 2>&1 | grep Version | cut -d\' \' -f2').read())
         if samtoolsVersion > 1.2:
-            print("gt1.2")
             cmdBwaMem = "bwa mem %s %s 2>/dev/null| samtools view -uS - | samtools sort - -o %s"%(file, readBWA, sortedFile)
             os.system(cmdBwaMem)
             cmdCov = "bedtools coverage -a %s -b %s > %s"%(bed, sortedFile, covOut)
