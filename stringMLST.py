@@ -777,7 +777,7 @@ def loadConfig(config):
 # Output     : Updates results to include coverage info
 #############################################################
 def getCoverage(results):
-    tmpdir = "/data/home/achande3/stringmlst-iss36/stringMLST/tests"
+    tmpdir = tempfile.mkdtemp()
     for sample in results:
         file = tmpdir +'/'+ sample + '.fasta'
         bed = tmpdir +'/'+ sample + '.bed'
@@ -787,7 +787,7 @@ def getCoverage(results):
             with open(bed, 'w') as bedFile:
                 for gene in configDict['loci']:
                     genes = Fasta(configDict['loci'][gene])
-                    allele = gene+'_'+re.sub("*", "", str(results[sample][gene]))
+                    allele = gene+'_'+re.sub("\*$", "", str(results[sample][gene]))
                     tmpFasta.write('>'+gene+'\n')
                     bedFile.write(gene+'\t0\t'+str(len(genes[allele]))+'\n')
                     for line in genes[allele]:
@@ -795,10 +795,18 @@ def getCoverage(results):
         cmdIndex = "bwa index %s 2>/dev/null"%(file)
         os.system(cmdIndex)
         readBWA = sample+'_reads.fq'
-        cmdBwaMem = "bwa mem %s %s 2>/dev/null| samtools view -uS - | samtools sort - -o %s"%(file, readBWA, sortedFile)
-        os.system(cmdBwaMem)
-        cmdCov = "bedtools coverage -a %s -b %s > %s"%(bed, sortedFile, covOut)
-        os.system(cmdCov)
+        samtoolsVersion = float(os.popen('samtools 2>&1 | grep Version | cut -d\' \' -f2').read())
+        if samtoolsVersion > 1.2:
+            print("gt1.2")
+            cmdBwaMem = "bwa mem %s %s 2>/dev/null| samtools view -uS - | samtools sort - -o %s"%(file, readBWA, sortedFile)
+            os.system(cmdBwaMem)
+            cmdCov = "bedtools coverage -a %s -b %s > %s"%(bed, sortedFile, covOut)
+            os.system(cmdCov)
+        else:
+            cmdBwaMem = "bwa mem %s %s 2>/dev/null| samtools view -uS - | samtools sort - %s"%(file, readBWA, sortedFile)
+            os.system(cmdBwaMem)
+            cmdCov = "bedtools coverage -a %s -b %s.bam > %s"%(bed, sortedFile, covOut)
+            os.system(cmdCov)
         with open(covOut, 'r') as cov:
             for line in cov.readlines():
                 records = line.rstrip().rsplit('\t')
