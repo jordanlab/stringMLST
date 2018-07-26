@@ -15,7 +15,7 @@ try:
 except ImportError:
         from urllib import urlopen, urlretrieve
 import argparse
-version = """ stringMLST v0.5.1.1 (updated : January 5, 2018) """
+version = """ stringMLST v0.5.1.2 (updated : July 26, 2018) """
 """
 
 stringMLST free for academic users and requires permission before any commercial 
@@ -1431,7 +1431,7 @@ schemes = {"achromobacter" : "Achromobacter spp.",
 "s.haemolyticus" : "Staphylococcus haemolyticus",
 "s.lugdunensis" : "Staphylococcus lugdunensis",
 "s.pseudintermedius" : "Staphylococcus pseudintermedius",
-"stapylococcus-hominis" : "Stapylococcus hominis",
+"staphylococcus-hominis" : "Staphylococcus hominis",
 "stenotrophomonas-maltophilia" : "Stenotrophomonas maltophilia",
 "s.agalactiae" : "Streptococcus agalactiae",
 "s.canis" : "Streptococcus canis",
