@@ -11,7 +11,7 @@ long_description="Fast k-mer based tool for alignment and assembly-free multi lo
 setup(
   name = 'stringMLST',
   scripts = ['stringMLST.py'], 
-  version = '0.5.1.2',
+  version = '0.5.2',
   description = 'Fast k-mer based tool for alignment and assembly-free multi locus sequence typing (MLST) directly from genome sequencing reads.',
   long_description=long_description,
   author = 'Jordan Lab',
