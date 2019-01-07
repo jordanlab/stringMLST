@@ -15,11 +15,11 @@ try:
 except ImportError:
         from urllib import urlopen, urlretrieve
 import argparse
-version = """ stringMLST v0.5.1.2 (updated : July 26, 2018) """
+version = """ stringMLST v0.5.2 (updated : January, 7 2018) """
 """
 
-stringMLST free for academic users and requires permission before any commercial 
-use for any version of this code/algorithm. If you are a commercial user, please 
+stringMLST free for academic users and requires permission before any commercial
+use for any version of this code/algorithm. If you are a commercial user, please
 contact king.jordan@biology.gatech.edu for permissions
 
 LICENSE TERMS FOR stringMLST
@@ -273,7 +273,7 @@ def get_links(speciesName,schemes):
                         if child.tag == "loci":
                             for locus in child:
                                 loci[locus.text.rstrip()] = locus[0].text
- 
+
     return profileURL
 #############################################################
 # Function   : get_files
@@ -289,7 +289,7 @@ def get_files(profileURL,species):
                 localFfile, headers = urlretrieve(loci[file],localFile)
             except:
                 print( '\033[91m' + "There was an error downloading " + file + '\033[0m')
-                pass 
+                pass
             configFile.write(file + "\t" + filePrefix + "_" + file + ".tfa\n")
         localFile = filePrefix + "_profile.txt"
         localFile, headers = urlretrieve(profileURL,localFile)
@@ -736,7 +736,7 @@ def loadWeightDict(weightFile):
                (loc, allele) =  array[0].replace('-','_').rsplit('_',1)
             except ValueError:
                 print("Error : Allele name in locus file should be seperated by '_' or '-'")
-                exit(0) 
+                exit(0)
             if loc not in weightDict:
                 weightDict[loc] = {}
             weightDict[loc][allele] = float(array[1])
@@ -787,7 +787,7 @@ def getCoverage(results):
             with open(bed, 'w') as bedFile:
                 for gene in configDict['loci']:
                     genes = Fasta(configDict['loci'][gene])
-                    allele = gene+'_'+re.sub("*", "", str(results[sample][gene]))
+                    allele = gene+'_'+re.sub('\*', "", str(results[sample][gene]))
                     tmpFasta.write('>'+gene+'\n')
                     bedFile.write(gene+'\t0\t'+str(len(genes[allele]))+'\n')
                     for line in genes[allele]:
@@ -905,7 +905,7 @@ def formKmerDB(configDict, k, output_filename):
                 (loc, num) =  allele.replace('-','_').rsplit('_',1)
             except ValueError:
                 print("Error : Allele name in locus file should be seperated by '_' or '-'")
-                exit(0) 
+                exit(0)
             splitId =  allele.replace('-','_').rsplit('_',1)
             i = 0
             while i+k <= l:
@@ -1178,7 +1178,7 @@ Required arguments
     Identifier for getMLST module
 --species= <species name>
     Species name from the pubMLST schemes (use --schemes to get list of available schemes)
-    "all" will download and build all 
+    "all" will download and build all
 Optional arguments
 -k = <kmer length>
     Kmer size for which the db has to be formed(Default k = 35). Note the tool works best with kmer length in between 35 and 66
@@ -1317,7 +1317,7 @@ Required arguments
     Identifier for getMLST module
 --species= <species name>
     Species name from the pubMLST schemes (use --schemes to get list of available schemes)
-    "all" will download and build all 
+    "all" will download and build all
 Optional arguments
 -k = <kmer length>
     Kmer size for which the db has to be formed(Default k = 35). Note the tool works best with kmer length in between 35 and 66
@@ -1627,15 +1627,15 @@ elif downloadDB is True:
         print("Using a kmer size of " + str(k) + " for all databases.")
         for key in sorted(schemes.keys()):
             filePrefix = str(dbPrefix.rsplit("/",1)[0]) + "/" + key
-            print ('\033[1m' + "Preparing: " + schemes[key] + '\033[0m') 
-            # Move the rest of this informational message into the download handler 
+            print ('\033[1m' + "Preparing: " + schemes[key] + '\033[0m')
+            # Move the rest of this informational message into the download handler
             # + " ( " + filePrefix + "/" + key + "_" +str(k) + " )")
             try:
                 os.makedirs(filePrefix)
             except OSError:
                pass
             filePrefix = filePrefix + "/" + key
-            config = filePrefix + "_config.txt" 
+            config = filePrefix + "_config.txt"
             profileURL = get_links(key,schemes)
             get_files(profileURL,key)
     else:
