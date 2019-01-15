@@ -1589,6 +1589,7 @@ if buildDB is True:
     else:
         print("Error: The input config file "+config +" does not exist.")
 elif predict is True:
+    startTime = time.time()
     try:
         if not log:
             log = dbPrefix+'.log'
@@ -1612,6 +1613,8 @@ elif predict is True:
         loadConfig(config)
         getCoverage(results)
     printResults(results, output_filename, overwrite, timeDisp)
+    endTime = time.time()
+    print("Total runtime: ", endTime-startTime)
 elif downloadDB is True:
     global filePrefix
     if species is None:
