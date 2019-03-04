@@ -256,15 +256,10 @@ predict part starts here
 # Description: Gets the URLs from pubMLST for the required
 #              files (alleles, profile)
 #############################################################
-def get_links(speciesName,schemes):
-    global loci
-    loci = {}
-    URL="http://pubmlst.org/data/dbases.xml"
-    xml = urlopen(URL)
-    tree = ET.parse(xml)
-    root = tree.getroot()
-    for species in root:
-        if re.search(schemes[speciesName], species.text,re.IGNORECASE):
+def get_links(xmlData, savePath, speciesName):
+    lociList = {}
+    for species in xmlData:
+        if re.search(speciesName, species.text,re.IGNORECASE):
             for mlst in species:
                 for database in mlst:
                     for child in database:
@@ -272,21 +267,20 @@ def get_links(speciesName,schemes):
                             profileURL = child[1].text
                         if child.tag == "loci":
                             for locus in child:
-                                loci[locus.text.rstrip()] = locus[0].text
-
-    return profileURL
+                                lociList[locus.text.rstrip()] = locus[0].text
+    return profileURL, lociList
 #############################################################
 # Function   : get_files
 # Input      : URLs from get_links
 # Output     : Downloads files and builds database
 #############################################################
-def get_files(profileURL,species):
+def get_files(filePrefix, loci, profileURL, speciesName):
     with open(config, "w") as configFile:
         configFile.write("[loci]\n")
         for file in loci:
             localFile = filePrefix + "_" + file + ".tfa"
             try:
-                localFfile, headers = urlretrieve(loci[file],localFile)
+                localFile, headers = urlretrieve(loci[file],localFile)
             except:
                 print( '\033[91m' + "There was an error downloading " + file + '\033[0m')
                 pass
@@ -299,10 +293,10 @@ def get_files(profileURL,species):
         try:
             makeCustomDB(config,k,filePrefix)
         except:
-            print( '\033[91m' + "Failed to create database " + schemes[species] + '\033[0m' )
+            print( '\033[91m' + "Failed to create database " + speciesName + '\033[0m' )
             pass
         else:
-            print("\t" + '\033[92m' + "Database ready for " + schemes[species] + '\033[0m')
+            print("\t" + '\033[92m' + "Database ready for " + speciesName + '\033[0m')
             print( "\t" + filePrefix)
 ############################################################
 # Function   : batchTool
@@ -1333,132 +1327,6 @@ Optional arguments
 =============================================================================================
 
 """
-schemes = {"achromobacter" : "Achromobacter spp.",
-"baumannii1" : "Acinetobacter baumannii#1",
-"baumannii2" : "Acinetobacter baumannii#2",
-"aeromonas" : "Aeromonas spp.",
-"anaplasma-phagocytophilum" : "Anaplasma phagocytophilum",
-"arcobacter" : "Arcobacter spp.",
-"aspergillus-fumigatus" : "Aspergillus fumigatus",
-"bacillus-cereus" : "Bacillus cereus",
-"bacillus-licheniformis" : "Bacillus licheniformis",
-"bacillus-subtilis" : "Bacillus subtilis",
-"bartonella-henselae" : "Bartonella henselae",
-"bordetella" : "Bordetella spp.",
-"borrelia" : "Borrelia spp.",
-"brachyspira-hampsonii" : "Brachyspira hampsonii",
-"brachyspira-hyodysenteriae" : "Brachyspira hyodysenteriae",
-"brachyspira-intermedia" : "Brachyspira intermedia",
-"brachyspira-pilosicoli" : "Brachyspira pilosicoli",
-"brachyspira" : "Brachyspira spp.",
-"brucella" : "Brucella spp.",
-"burkholderia-cepacia-complex" : "Burkholderia cepacia complex",
-"burkholderia-pseudomallei" : "Burkholderia pseudomallei",
-"campylobacter-concisus-curvus" : "Campylobacter concisus/curvus",
-"campylobacter-fetus" : "Campylobacter fetus",
-"campylobacter-helveticus" : "Campylobacter helveticus",
-"campylobacter-hyointestinalis" : "Campylobacter hyointestinalis",
-"campylobacter-insulaenigrae" : "Campylobacter insulaenigrae",
-"campylobacter-jejuni" : "Campylobacter jejuni",
-"campylobacter-lanienae" : "Campylobacter lanienae",
-"campylobacter-lari" : "Campylobacter lari",
-"campylobacter-sputorum" : "Campylobacter sputorum",
-"campylobacter-upsaliensis" : "Campylobacter upsaliensis",
-"candida-albicans" : "Candida albicans",
-"candida-glabrata" : "Candida glabrata",
-"candida-krusei" : "Candida krusei",
-"candida-tropicalis" : "Candida tropicalis",
-"carnobacterium-maltaromaticum" : "Carnobacterium maltaromaticum",
-"chlamydiales" : "Chlamydiales spp.",
-"citrobacter-freundii" : "Citrobacter freundii",
-"clonorchis-sinensis" : "Clonorchis sinensis",
-"clostridium-botulinum" : "Clostridium botulinum",
-"clostridium-difficile" : "Clostridium difficile",
-"clostridium-septicum" : "Clostridium septicum",
-"corynebacterium-diphtheriae" : "Corynebacterium diphtheriae",
-"cronobacter" : "Cronobacter spp.",
-"enterobacter-cloacae" : "enterobacter cloacae",
-"enterococcus-faecalis" : "enterococcus faecalis",
-"enterococcus-faecium" : "enterococcus faecium",
-"ecoli1" : "escherichia coli#1",
-"ecoli2" : "escherichia coli#2",
-"flavobacterium-psychrophilum" : "Flavobacterium psychrophilum",
-"haemophilus-influenzae" : "Haemophilus influenzae",
-"haemophilus-parasuis" : "Haemophilus parasuis",
-"helicobacter-cinaedi" : "Helicobacter cinaedi",
-"helicobacter-pylori" : "Helicobacter pylori",
-"helicobacter-suis" : "Helicobacter suis",
-"kingella-kingae" : "Kingella kingae",
-"klebsiella-oxytoca" : "Klebsiella oxytoca",
-"klebsiella-pneumoniae" : "Klebsiella pneumoniae",
-"kudoa-septempunctata" : "Kudoa septempunctata",
-"lactobacillus-salivarius" : "Lactobacillus salivarius",
-"leptospira" : "Leptospira spp.",
-"leptospira2" : "Leptospira spp.#2",
-"leptospira3" : "Leptospira spp.#3",
-"listeria" : "Listeria monocytogenes",
-"macrococcus-canis" : "Macrococcus canis",
-"macrococcus-caseolyticus" : "Macrococcus caseolyticus",
-"mannheimia-haemolytica" : "Mannheimia haemolytica",
-"melissococcus-plutonius" : "Melissococcus plutonius",
-"moraxella" : "Moraxella catarrhalis",
-"mycobacterium-abscessus" : "Mycobacterium abscessus",
-"mycobacterium-massiliense" : "Mycobacterium massiliense",
-"mycoplasma-agalactiae" : "Mycoplasma agalactiae",
-"mycoplasma-bovis" : "Mycoplasma bovis",
-"mycoplasma-hyopneumoniae" : "Mycoplasma hyopneumoniae",
-"mycoplasma-hyorhinis" : "Mycoplasma hyorhinis",
-"mycoplasma-iowae" : "Mycoplasma iowae",
-"mycoplasma-pneumoniae" : "Mycoplasma pneumoniae",
-"mycoplasma-synoviae" : "Mycoplasma synoviae",
-"neisseria" : "Neisseria spp.",
-"orientia-tsutsugamushi" : "Orientia tsutsugamushi",
-"ornithobacterium-rhinotracheale" : "Ornithobacterium rhinotracheale",
-"paenibacillus-larvae" : "Paenibacillus larvae",
-"pasteurella-multocida1" : "Pasteurella multocida#1",
-"pasteurella-multocida2" : "Pasteurella multocida#2",
-"pediococcus-pentosaceus" : "Pediococcus pentosaceus",
-"photobacterium-damselae" : "Photobacterium damselae",
-"porphyromonas-gingivalis" : "Porphyromonas gingivalis",
-"propionibacterium-acnes" : "Propionibacterium acnes",
-"pseudomonas-aeruginosa" : "Pseudomonas aeruginosa",
-"pseudomonas-fluorescens" : "Pseudomonas fluorescens",
-"riemerella-anatipestifer" : "Riemerella anatipestifer",
-"salmonella-enterica" : "Salmonella enterica",
-"sinorhizobium" : "Sinorhizobium spp.",
-"s.aureus" : "Staphylococcus aureus",
-"s.epidermidis" : "Staphylococcus epidermidis",
-"s.haemolyticus" : "Staphylococcus haemolyticus",
-"s.lugdunensis" : "Staphylococcus lugdunensis",
-"s.pseudintermedius" : "Staphylococcus pseudintermedius",
-"staphylococcus-hominis" : "Staphylococcus hominis",
-"stenotrophomonas-maltophilia" : "Stenotrophomonas maltophilia",
-"s.agalactiae" : "Streptococcus agalactiae",
-"s.canis" : "Streptococcus canis",
-"s.dysgalactiae-equisimilis" : "Streptococcus dysgalactiae equisimilis",
-"s.gallolyticus" : "Streptococcus gallolyticus",
-"s.oralis" : "Streptococcus oralis",
-"s.pneumoniae" : "Streptococcus pneumoniae",
-"s.pyogenes" : "Streptococcus pyogenes",
-"s.suis" : "Streptococcus suis",
-"s.thermophilus" : "Streptococcus thermophilus",
-"s.thermophilus2" : "Streptococcus thermophilus#2",
-"s.uberis" : "Streptococcus uberis",
-"s.zooepidemicus" : "Streptococcus zooepidemicus",
-"streptomyces-spp" : "Streptomyces spp",
-"taylorella" : "Taylorella spp.",
-"tenacibaculum" : "Tenacibaculum spp.",
-"trichomonas-vaginalis" : "Trichomonas vaginalis",
-"vibrio-cholerae" : "Vibrio cholerae",
-"vibrio-parahaemolyticus" : "Vibrio parahaemolyticus",
-"vibrio" : "Vibrio spp.",
-"vibrio-tapetis" : "Vibrio tapetis",
-"vibrio-vulnificus" : "Vibrio vulnificus",
-"wolbachia" : "Wolbachia",
-"xylella-fastidiosa" : "Xylella fastidiosa",
-"yersinia-pseudotuberculosis" : "Yersinia pseudotuberculosis",
-"yersinia-ruckeri" : "Yersinia ruckeri",
-"yersinia" : "Yersinia spp."}
 
 """The Program Starts Execution Here"""
 """Default Params"""
@@ -1613,50 +1481,68 @@ elif predict is True:
         getCoverage(results)
     printResults(results, output_filename, overwrite, timeDisp)
 elif downloadDB is True:
-    global filePrefix
+    dbURL="http://pubmlst.org/data/dbases.xml"
+    databaseXML = urlopen(dbURL)
+    dbTree = ET.parse(databaseXML)
+    dbRoot = dbTree.getroot()
     if species is None:
         print ("Please refer to --help to more information")
         print()
         print ("Expected command format:")
         print("stringMLST.py --getMLST --species= <species> [-k kmer length] [-P DB prefix]")
         print ()
-        print("Available MLST Schemes:")
-        print (", ".join(sorted(schemes.keys())))
+        print("To print available MLST Schemes use:")
+        print("stringMLST.py --getMLST --species show")
         exit(0)
+    elif species == "show":
+        for species in dbRoot:
+            print(species.text.rstrip())
     elif species == "all":
         print("Using a kmer size of " + str(k) + " for all databases.")
-        for key in sorted(schemes.keys()):
-            filePrefix = str(dbPrefix.rsplit("/",1)[0]) + "/" + key
-            print ('\033[1m' + "Preparing: " + schemes[key] + '\033[0m')
+        for species in dbRoot:
+            speciesName = species.text.rstrip()
+            print ('\033[1m' + "Preparing: " + speciesName + '\033[0m')
+            if re.findall(" ", speciesName) or re.findall(".", speciesName) or re.findall("#", speciesName):
+                normSpeciesName = speciesName.replace(" ", "_").replace(".", "").replace("#","_")
+                print( '\t\033[33m' + "INFO: normalizing name to: " + normSpeciesName + '\033[0m' )
+            else:
+                normSpeciesName = species
+            filePrefix = str(dbPrefix.rsplit("/",1)[0]) + "/" + normSpeciesName
             # Move the rest of this informational message into the download handler
             # + " ( " + filePrefix + "/" + key + "_" +str(k) + " )")
             try:
                 os.makedirs(filePrefix)
             except OSError:
                pass
-            filePrefix = filePrefix + "/" + key
+            filePrefix = filePrefix + "/" + normSpeciesName
             config = filePrefix + "_config.txt"
-            profileURL = get_links(key,schemes)
-            get_files(profileURL,key)
+            profileURL, loci = get_links(dbRoot, filePrefix, speciesName)
+            get_files(filePrefix, loci, profileURL, speciesName)
     else:
+        print('\033[1m' + "Preparing: " + species + '\033[0m')
+        if re.findall(" ", species) or re.findall(".", species):
+            normSpeciesName = species.replace(" ", "_").replace(".", "")
+            print( '\t\033[33m' + "INFO: normalizing name to: " + normSpeciesName + '\033[0m' )
+        else:
+            normSpeciesName = species
         try:
             os.makedirs(dbPrefix.rsplit("/",1)[0])
         except OSError:
             pass
         if len(re.findall("/", dbPrefix)) == 0:
-            filePrefix = dbPrefix + "/" + species
+            filePrefix = dbPrefix + "/" + normSpeciesName
         elif len(re.findall("/", dbPrefix)) == 1 and len(dbPrefix.rsplit("/",1)[1]) > 0:
             filePrefix = dbPrefix
         elif len(re.findall("/", dbPrefix)) == 1 and len(dbPrefix.rsplit("/",1)[1]) == 0:
-            filePrefix = dbPrefix + species
+            filePrefix = dbPrefix + normSpeciesName
         elif len(re.findall("/", dbPrefix)) > 1:
             if dbPrefix.endswith('/'):
-                filePrefix = dbPrefix + species
+                filePrefix = dbPrefix + normSpeciesName
             else:
                 filePrefix = dbPrefix
         config = filePrefix + "_config.txt"
-        profileURL = get_links(species,schemes)
-        get_files(profileURL,species)
+        profileURL, loci = get_links(dbRoot, filePrefix, species)
+        get_files(filePrefix, loci, profileURL, species)
 
 else:
     print(helpTextSmall)
