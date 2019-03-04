@@ -13,7 +13,7 @@ import xml.etree.ElementTree as ET
 try:
     from urllib.request import urlopen, urlretrieve
 except ImportError:
-        from urllib import urlopen, urlretrieve
+    from urllib import urlopen, urlretrieve
 import argparse
 version = """ stringMLST v0.5.2 (updated : January, 7 2018) """
 """
@@ -259,11 +259,13 @@ predict part starts here
 def get_links(xmlData, savePath, speciesName):
     lociList = {}
     for species in xmlData:
-        if re.search(speciesName, species.text,re.IGNORECASE):
+        if re.search(speciesName, species.text, re.IGNORECASE):
             for mlst in species:
                 for database in mlst:
                     for child in database:
+                        print(child.text)
                         if child.tag == "profiles":
+                            print(child[1].text)
                             profileURL = child[1].text
                         if child.tag == "loci":
                             for locus in child:
@@ -280,24 +282,24 @@ def get_files(filePrefix, loci, profileURL, speciesName):
         for file in loci:
             localFile = filePrefix + "_" + file + ".tfa"
             try:
-                localFile, headers = urlretrieve(loci[file],localFile)
+                localFile, headers = urlretrieve(loci[file], localFile)
             except:
-                print( '\033[91m' + "There was an error downloading " + file + '\033[0m')
+                print('\033[91m' + "There was an error downloading " + file + '\033[0m')
                 pass
             configFile.write(file + "\t" + filePrefix + "_" + file + ".tfa\n")
         localFile = filePrefix + "_profile.txt"
-        localFile, headers = urlretrieve(profileURL,localFile)
+        localFile, headers = urlretrieve(profileURL, localFile)
         configFile.write("[profile]\n")
         configFile.write("profile\t" + filePrefix + "_profile.txt\n")
         configFile.close()
         try:
-            makeCustomDB(config,k,filePrefix)
+            makeCustomDB(config, k, filePrefix)
         except:
-            print( '\033[91m' + "Failed to create database " + speciesName + '\033[0m' )
+            print('\033[91m' + "Failed to create database " + speciesName + '\033[0m')
             pass
         else:
             print("\t" + '\033[92m' + "Database ready for " + speciesName + '\033[0m')
-            print( "\t" + filePrefix)
+            print("\t" + filePrefix)
 ############################################################
 # Function   : batchTool
 # Input      : Directory name, paired or single, k value
@@ -727,7 +729,7 @@ def loadWeightDict(weightFile):
         for line in lines:
             array = line.rstrip().rsplit('\t')
             try:
-               (loc, allele) =  array[0].replace('-','_').rsplit('_',1)
+               (loc, allele) = array[0].replace('-', '_').rsplit('_', 1)
             except ValueError:
                 print("Error : Allele name in locus file should be seperated by '_' or '-'")
                 exit(0)
@@ -896,11 +898,11 @@ def formKmerDB(configDict, k, output_filename):
             sum += l
             n += 1
             try:
-                (loc, num) =  allele.replace('-','_').rsplit('_',1)
+                (loc, num) = allele.replace('-', '_').rsplit('_', 1)
             except ValueError:
                 print("Error : Allele name in locus file should be seperated by '_' or '-'")
                 exit(0)
-            splitId =  allele.replace('-','_').rsplit('_',1)
+            splitId = allele.replace('-', '_').rsplit('_', 1)
             i = 0
             while i+k <= l:
                 kmer = seq[i:i+k]
@@ -1351,7 +1353,7 @@ log = ''
 k = 35
 fuzzy = 300
 coverage = False
-#print 'ARGV      :', sys.argv[1:]
+#print'ARGV      :', sys.argv[1:]
 #exit(0)
 """Input arguments"""
 options, remainder = getopt.getopt(sys.argv[1:], 'o:x1:2:k:l:bd:pshP:c:trva:z:C', [
@@ -1432,7 +1434,7 @@ for opt, arg in options:
             print("You provided '" + arg + "' for your fuzziness threshold, which is not an integer value")
             exit(0)
     elif opt in '--schemes':
-        print (", ".join(sorted(schemes.keys())))
+        print(", ".join(sorted(schemes.keys())))
         exit(0)
     elif opt in '--getMLST':
         downloadDB = True
@@ -1481,17 +1483,17 @@ elif predict is True:
         getCoverage(results)
     printResults(results, output_filename, overwrite, timeDisp)
 elif downloadDB is True:
-    dbURL="http://pubmlst.org/data/dbases.xml"
+    dbURL = "http://pubmlst.org/data/dbases.xml"
     databaseXML = urlopen(dbURL)
     dbTree = ET.parse(databaseXML)
     dbRoot = dbTree.getroot()
     if species is None:
-        print ("Please refer to --help to more information")
+        print("Please refer to --help to more information")
         print()
-        print ("Expected command format:")
+        print("Expected command format:")
         print("stringMLST.py --getMLST --species= <species> [-k kmer length] [-P DB prefix]")
-        print ()
-        print("To print available MLST Schemes use:")
+        print()
+        print("To printavailable MLST Schemes use:")
         print("stringMLST.py --getMLST --species show")
         exit(0)
     elif species == "show":
@@ -1501,14 +1503,14 @@ elif downloadDB is True:
         print("Using a kmer size of " + str(k) + " for all databases.")
         for species in dbRoot:
             speciesName = species.text.rstrip()
-            print ('\033[1m' + "Preparing: " + speciesName + '\033[0m')
+            print('\033[1m' + "Preparing: " + speciesName + '\033[0m')
             if re.search('[/#. ()]', speciesName):
                 normSpeciesName = re.sub('[/# ]', "_", speciesName)
                 normSpeciesName = re.sub('[.()]', "", normSpeciesName)
-                print( '\t\033[33m' + "INFO: normalizing name to: " + normSpeciesName + '\033[0m' )
+                print('\t\033[33m' + "INFO: normalizing name to: " + normSpeciesName + '\033[0m')
             else:
                 normSpeciesName = species
-            filePrefix = str(dbPrefix.rsplit("/",1)[0]) + "/" + normSpeciesName
+            filePrefix = str(dbPrefix.rsplit("/", 1)[0]) + "/" + normSpeciesName
             # Move the rest of this informational message into the download handler
             # + " ( " + filePrefix + "/" + key + "_" +str(k) + " )")
             try:
@@ -1521,21 +1523,21 @@ elif downloadDB is True:
             get_files(filePrefix, loci, profileURL, speciesName)
     else:
         print('\033[1m' + "Preparing: " + species + '\033[0m')
-        if re.search('[/#. ()]', speciesName):
-            normSpeciesName = re.sub('[/# ]', "_", speciesName)
+        if re.search('[/#. ()]', species):
+            normSpeciesName = re.sub('[/# ]', "_", species)
             normSpeciesName = re.sub('[.()]', "", normSpeciesName)
-            print( '\t\033[33m' + "INFO: normalizing name to: " + normSpeciesName + '\033[0m' )
+            print('\t\033[33m' + "INFO: normalizing name to: " + normSpeciesName + '\033[0m')
         else:
             normSpeciesName = species
         try:
-            os.makedirs(dbPrefix.rsplit("/",1)[0])
+            os.makedirs(dbPrefix.rsplit("/", 1)[0])
         except OSError:
             pass
         if len(re.findall("/", dbPrefix)) == 0:
             filePrefix = dbPrefix + "/" + normSpeciesName
-        elif len(re.findall("/", dbPrefix)) == 1 and len(dbPrefix.rsplit("/",1)[1]) > 0:
+        elif len(re.findall("/", dbPrefix)) == 1 and len(dbPrefix.rsplit("/", 1)[1]) > 0:
             filePrefix = dbPrefix
-        elif len(re.findall("/", dbPrefix)) == 1 and len(dbPrefix.rsplit("/",1)[1]) == 0:
+        elif len(re.findall("/", dbPrefix)) == 1 and len(dbPrefix.rsplit("/", 1)[1]) == 0:
             filePrefix = dbPrefix + normSpeciesName
         elif len(re.findall("/", dbPrefix)) > 1:
             if dbPrefix.endswith('/'):
@@ -1543,6 +1545,7 @@ elif downloadDB is True:
             else:
                 filePrefix = dbPrefix
         config = filePrefix + "_config.txt"
+        print("Get URLs")
         profileURL, loci = get_links(dbRoot, filePrefix, species)
         get_files(filePrefix, loci, profileURL, species)
 
