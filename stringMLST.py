@@ -1502,8 +1502,9 @@ elif downloadDB is True:
         for species in dbRoot:
             speciesName = species.text.rstrip()
             print ('\033[1m' + "Preparing: " + speciesName + '\033[0m')
-            if re.findall(" ", speciesName) or re.findall(".", speciesName) or re.findall("#", speciesName):
-                normSpeciesName = speciesName.replace(" ", "_").replace(".", "").replace("#","_")
+            if re.search('[/#. ()]', speciesName):
+                normSpeciesName = re.sub('[/# ]', "_", speciesName)
+                normSpeciesName = re.sub('[.()]', "", normSpeciesName)
                 print( '\t\033[33m' + "INFO: normalizing name to: " + normSpeciesName + '\033[0m' )
             else:
                 normSpeciesName = species
@@ -1520,8 +1521,9 @@ elif downloadDB is True:
             get_files(filePrefix, loci, profileURL, speciesName)
     else:
         print('\033[1m' + "Preparing: " + species + '\033[0m')
-        if re.findall(" ", species) or re.findall(".", species):
-            normSpeciesName = species.replace(" ", "_").replace(".", "")
+        if re.search('[/#. ()]', speciesName):
+            normSpeciesName = re.sub('[/# ]', "_", speciesName)
+            normSpeciesName = re.sub('[.()]', "", normSpeciesName)
             print( '\t\033[33m' + "INFO: normalizing name to: " + normSpeciesName + '\033[0m' )
         else:
             normSpeciesName = species
