@@ -258,6 +258,7 @@ predict part starts here
 #############################################################
 def get_links(xmlData, savePath, speciesName):
     lociList = {}
+    profileURL = None
     for species in xmlData:
         if re.search(re.escape(speciesName), species.text, re.IGNORECASE, ):
             for mlst in species:
@@ -268,7 +269,21 @@ def get_links(xmlData, savePath, speciesName):
                         if child.tag == "loci":
                             for locus in child:
                                 lociList[locus.text.rstrip()] = locus[0].text
-    return profileURL, lociList
+    if profileURL is None:
+        profileError = "Parsing failed: could not find profiles file"
+        print(profileError)
+        print(f"This usually means the provided species, '{speciesName}', does not exist on PubMLST")
+        print(f"Use `{sys.argv[0]} --getMLST --species list` to list available species")
+        print("Or visit PubMLST for more information:\nhttps://pubmlst.org/data/")
+        logging.debug(profileError)
+        sys.exit(1)
+    elif lociList == {}:
+        lociError = "Parsing failed: could not find allele sequences"
+        logging.debug(lociError)
+        print(lociError)
+        sys.exit(1)
+    else:
+        return profileURL, lociList
 #############################################################
 # Function   : get_files
 # Input      : URLs from get_links
@@ -1310,8 +1325,9 @@ Required arguments
 --getMLST
     Identifier for getMLST module
 --species= <species name>
-    Species name from the pubMLST schemes (use --schemes to get list of available schemes)
-    "all" will download and build all
+    Species name from the pubMLST schemes
+    Use "show" or "list" to list available schemes
+    "all" will download and build all available schemes
 Optional arguments
 -k = <kmer length>
     Kmer size for which the db has to be formed(Default k = 35). Note the tool works best with kmer length in between 35 and 66
@@ -1432,7 +1448,7 @@ for opt, arg in options:
             print("You provided '" + arg + "' for your fuzziness threshold, which is not an integer value")
             exit(0)
     elif opt in '--schemes':
-        print(", ".join(sorted(schemes.keys())))
+        print("The `--schemes` option has been depreciated.  Please use `--species list` to see available schemes")
         exit(0)
     elif opt in '--getMLST':
         downloadDB = True
@@ -1494,7 +1510,7 @@ elif downloadDB is True:
         print("To printavailable MLST Schemes use:")
         print("stringMLST.py --getMLST --species show")
         exit(0)
-    elif species == "show":
+    elif species == "show" or species == "list":
         for species in dbRoot:
             print(species.text.rstrip())
     elif species == "all":
@@ -1507,7 +1523,7 @@ elif downloadDB is True:
                 normSpeciesName = re.sub('[.()]', "", normSpeciesName)
                 print('\t\033[33m' + "INFO: normalizing name to: " + normSpeciesName + '\033[0m')
             else:
-                normSpeciesName = species
+                normSpeciesName = speciesName
             filePrefix = str(dbPrefix.rsplit("/", 1)[0]) + "/" + normSpeciesName
             # Move the rest of this informational message into the download handler
             # + " ( " + filePrefix + "/" + key + "_" +str(k) + " )")
@@ -1545,7 +1561,6 @@ elif downloadDB is True:
         config = filePrefix + "_config.txt"
         profileURL, loci = get_links(dbRoot, filePrefix, species)
         get_files(filePrefix, loci, profileURL, species)
-
 else:
     print(helpTextSmall)
     print("Error: Please select the mode: buildDB (for database building) or predict (for ST discovery) module")
