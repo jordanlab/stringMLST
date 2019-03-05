@@ -6,20 +6,17 @@ except ImportError:
   from distutils.core import setup
 from os import path
 here = path.abspath(path.dirname(__file__))
-try:
-  with open("README.md", "r") as fh:
-      long_description = fh.read()
-  except:
-    pass
-  else:
-    long_description = 'Fast k-mer based tool for alignment and assembly-free multi locus sequence typing (MLST) directly from genome sequencing reads.'
+def readme(file):
+  with open(path.join(here, 'README.md')) as fh:
+      long_description_text = fh.read()
+  return(long_description_text)
 
 setup(
   name = 'stringMLST',
   scripts = ['stringMLST.py'],
-  version = '0.6',
+  version = "0.6.1",
   description = 'Fast k-mer based tool for alignment and assembly-free multi locus sequence typing (MLST) directly from genome sequencing reads.',
-  long_description=long_description,
+  long_description=readme('README.md'),
   long_description_content_type="text/markdown",
   author = 'Jordan Lab',
   author_email = 'pypi@atc.io',
