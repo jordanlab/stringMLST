@@ -15,7 +15,7 @@ try:
 except ImportError:
     from urllib import urlopen, urlretrieve
 import argparse
-version = """ stringMLST v0.5.2 (updated : January, 7 2018) """
+version = """ stringMLST v0.6 (updated : March, 5 2019) """
 """
 
 stringMLST free for academic users and requires permission before any commercial
@@ -259,13 +259,11 @@ predict part starts here
 def get_links(xmlData, savePath, speciesName):
     lociList = {}
     for species in xmlData:
-        if re.search(speciesName, species.text, re.IGNORECASE):
+        if re.search(re.escape(speciesName), species.text, re.IGNORECASE, ):
             for mlst in species:
                 for database in mlst:
                     for child in database:
-                        print(child.text)
                         if child.tag == "profiles":
-                            print(child[1].text)
                             profileURL = child[1].text
                         if child.tag == "loci":
                             for locus in child:
@@ -1545,7 +1543,6 @@ elif downloadDB is True:
             else:
                 filePrefix = dbPrefix
         config = filePrefix + "_config.txt"
-        print("Get URLs")
         profileURL, loci = get_links(dbRoot, filePrefix, species)
         get_files(filePrefix, loci, profileURL, species)
 
