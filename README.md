@@ -17,7 +17,7 @@ Abstract
 Application Note  
 *http://bioinformatics.oxfordjournals.org/content/early/2016/09/06/bioinformatics.btw586.full.pdf+html*
 
-[![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat-square)](http://bioconda.github.io/recipes/stringmlst/README.html)  [![PyPI version](https://badge.fury.io/py/stringMLST.svg)](https://badge.fury.io/py/stringMLST)
+[![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat-square)](http://bioconda.github.io/recipes/stringmlst/README.html)  [![PyPI version](https://badge.fury.io/py/stringMLST.svg)](https://badge.fury.io/py/stringMLST)  ![downloads](https://img.shields.io/conda/dn/bioconda/stringmlst.svg?style=flat) [![container ready](https://quay.io/repository/biocontainers/stringmlst/status)](https://quay.io/repository/biocontainers/stringmlst)
 
 
 
