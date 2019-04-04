@@ -15,7 +15,7 @@ try:
 except ImportError:
     from urllib import urlopen, urlretrieve
 import argparse
-version = """ stringMLST v0.6.1 (updated : March, 5 2019) """
+version = """ stringMLST v0.6.2 (updated : March, 5 2019) """
 """
 
 stringMLST free for academic users and requires permission before any commercial
@@ -272,8 +272,8 @@ def get_links(xmlData, savePath, speciesName):
     if profileURL is None:
         profileError = "Parsing failed: could not find profiles file"
         print(profileError)
-        print(f"This usually means the provided species, '{speciesName}', does not exist on PubMLST")
-        print(f"Use `{sys.argv[0]} --getMLST --species list` to list available species")
+        print("This usually means the provided species, '{}', does not exist on PubMLST".format(speciesName))
+        print("Use `{} --getMLST --species list` to list available species".format(sys.argv[0]))
         print("Or visit PubMLST for more information:\nhttps://pubmlst.org/data/")
         logging.debug(profileError)
         sys.exit(1)
