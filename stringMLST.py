@@ -1186,7 +1186,7 @@ Required arguments
 --getMLST
     Identifier for getMLST module
 --species= <species name>
-    Species name from the pubMLST schemes (use --schemes to get list of available schemes)
+    Species name from the pubMLST schemes (use "--species show" to get list of available schemes)
     "all" will download and build all
 Optional arguments
 -k = <kmer length>

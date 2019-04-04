@@ -8,13 +8,13 @@ pending.  Please refer to the PATENTS file for additional inforamation
 regarding licencing and use.
 
 
-Reference  
+Reference
 *http://jordan.biology.gatech.edu/page/software/stringmlst/*
 
-Abstract  
+Abstract
 *http://bioinformatics.oxfordjournals.org/content/early/2016/09/06/bioinformatics.btw586.short?rss=1*
 
-Application Note  
+Application Note
 *http://bioinformatics.oxfordjournals.org/content/early/2016/09/06/bioinformatics.btw586.full.pdf+html*
 
 [![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat-square)](http://bioconda.github.io/recipes/stringmlst/README.html)  [![PyPI version](https://badge.fury.io/py/stringMLST.svg)](https://badge.fury.io/py/stringMLST)  ![downloads](https://img.shields.io/conda/dn/bioconda/stringmlst.svg?style=flat) [![container ready](https://quay.io/repository/biocontainers/stringmlst/status)](https://quay.io/repository/biocontainers/stringmlst)
@@ -26,8 +26,8 @@ keeping your databases updated, stringMLST can download and build databases from
 and profile definitions. Please see the "Included databases and automated retrieval of databases from pubMLST" section
 below for instructions. *The databases bundled here are for convenience only, do not rely on them being up-to-date*.
 
-stringMLST is licensed and distributed under [CC Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)](https://creativecommons.org/licenses/by-nc-sa/4.0)  
-and is free for academic users and requires permission before any commercial use for any version of this code/algorithm.  
+stringMLST is licensed and distributed under [CC Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)](https://creativecommons.org/licenses/by-nc-sa/4.0)
+and is free for academic users and requires permission before any commercial use for any version of this code/algorithm.
 If you are a commercial user, please contact king.jordan@biology.gatech.edu for permissions
 
 ## Recommended installation method
@@ -41,7 +41,7 @@ pip install stringMLST
 
 ```
 git clone https://github.com/jordanlab/stringMLST
-# Optional, download prebuilt databases  
+# Optional, download prebuilt databases
 # We don't recommend this method, instead build the databases locally
 cd stringMLST
 git submodule init
@@ -50,13 +50,13 @@ git submodule update
 
 ## Quickstart guide
 
-```bash  
-pip install stringMLST  
-mkdir -p stringMLST_analysis; cd stringMLST_analysis  
-stringMLST.py --getMLST -P neisseria/nmb --species neisseria  
-# Download all available databases with:  
-# stringMLST.py --getMLST -P mlst_dbs --species all    
-wget  ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR026/ERR026529/ERR026529_1.fastq.gz ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR026/ERR026529/ERR026529_2.fastq.gz  
+```bash
+pip install stringMLST
+mkdir -p stringMLST_analysis; cd stringMLST_analysis
+stringMLST.py --getMLST -P neisseria/nmb --species neisseria
+# Download all available databases with:
+# stringMLST.py --getMLST -P mlst_dbs --species all
+wget  ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR026/ERR026529/ERR026529_1.fastq.gz ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR026/ERR026529/ERR026529_2.fastq.gz
 stringMLST.py --predict -P neisseria/nmb -1 ERR026529_1.fastq.gz -2 ERR026529_2.fastq.gz
 Sample  abcZ    adk     aroE    fumC    gdh     pdhC    pgm     ST
 ERR026529       231     180     306     612     269     277     260     10174
@@ -65,9 +65,9 @@ ERR026529       231     180     306     612     269     277     260     10174
 
 ## Python dependencies and external programs
 
-stringMLST does not require any python dependencies for basic usage (Building databases and predicting STs). 
+stringMLST does not require any python dependencies for basic usage (Building databases and predicting STs).
 
-For advanced used (genome coverage), stringMLST depends on the `pyfaidx` python module and `bamtools`, `bwa`, and `samtools`.  
+For advanced used (genome coverage), stringMLST depends on the `pyfaidx` python module and `bamtools`, `bwa`, and `samtools`.
 See the coverage section for more information
 
 stringMLST has been tested with:
@@ -139,18 +139,18 @@ profile datasets/Neisseria_spp/neisseria.txt
 * Run stringMLST.py --buildDB to create DB. Choose a k value and prefix (optional).
 
 ```
-stringMLST.py --buildDB -c databases/Neisseria_spp/config.txt -k 35 -P NM 
+stringMLST.py --buildDB -c databases/Neisseria_spp/config.txt -k 35 -P NM
 ```
 
 ### Predict:
 
 #### Single sample :
 ```
-stringMLST.py --predict -1 tests/fastqs/ERR026529_1.fastq -2 tests/fastqs/ERR026529_2.fastq -k 35 -P NM   
+stringMLST.py --predict -1 tests/fastqs/ERR026529_1.fastq -2 tests/fastqs/ERR026529_2.fastq -k 35 -P NM
 ```
 #### Batch mode (all the samples together):
 ```
-stringMLST.py --predict -d ./tests/fastqs/ -k 35 -P NM  
+stringMLST.py --predict -d ./tests/fastqs/ -k 35 -P NM
 ```
 #### List mode:
 Create a list file (list_paired.txt) as :
@@ -185,7 +185,7 @@ stringMLST's workflow is divided into two routines:
 Readme for stringMLST
 =============================================================================================
 Usage
-./stringMLST.py 
+./stringMLST.py
 [--buildDB]
 [--predict]
 [-1 filename_fastq1][--fastq1 filename_fastq1]
@@ -217,7 +217,7 @@ There are two steps to predicting ST using stringMLST.
 Synopsis:
 stringMLST.py --buildDB -c <config file> -k <kmer length(optional)> -P <DB prefix(optional)>
   config file : is a tab delimited file which has the information for typing scheme ie loci, its multifasta file and profile definition file.
-    Format : 
+    Format :
       [loci]
       locus1    locusFile1
       locus2    locusFile2
@@ -232,13 +232,13 @@ Required arguments
 --buildDB
   Identifier for build db module
 -c,--config = <configuration file>
-  Config file in the format described above. 
-  All the files follow the structure followed by pubmlst. Refer extended document for details. 
+  Config file in the format described above.
+  All the files follow the structure followed by pubmlst. Refer extended document for details.
 
-Optional arguments  
+Optional arguments
 -k = <kmer length>
   Kmer size for which the db has to be formed(Default k = 35). Note the tool works best with kmer length in between 35 and 66
-  for read lengths of 55 to 150 bp. Kmer size can be increased accordingly. It is advised to keep lower kmer sizes 
+  for read lengths of 55 to 150 bp. Kmer size can be increased accordingly. It is advised to keep lower kmer sizes
   if the quality of reads is not very good.
 -P,--prefix = <prefix>
   Prefix for db and log files to be created(Default = kmer). Also you can specify folder where you want the dbb to be created.
@@ -248,9 +248,9 @@ Optional arguments
   Prints the help manual for this application
 
  --------------------------------------------------------------------------------------------
- 
+
 2. stringMLST.py --predict
-  
+
 stringMLST --predict : can run in three modes
   1) single sample (default mode)
   2) batch mode : run stringMLST for all the samples in a folder (for a particular specie)
@@ -263,7 +263,7 @@ stringMLST.py --predict -1 <fastq file> -2 <fastq file> -d <directory location> 
 Required arguments
 --predict
   Identifier for predict miodule
-  
+
 Optional arguments
 -1,--fastq1 = <fastq1_filename>
   Path to first fastq file for paired end sample and path to the fastq file for single end file.
@@ -277,7 +277,7 @@ Optional arguments
   Calculate seqence coverage for each allele. Turns on read generation (-r) and turns off fuzzy (-z 1)
   Requires bwa, bamtools and samtools be in your path
 -k = <kmer_length>
-  Kmer length for which the db was created(Default k = 35). Could be verified by looking at the name of the db file. 
+  Kmer length for which the db was created(Default k = 35). Could be verified by looking at the name of the db file.
   Could be used if the reads are of very bad quality or have a lot of N's.
 -l,--list = <list_file>
   LIST MODE : Location of list file and flag for list mode.
@@ -311,15 +311,15 @@ Optional arguments
 
 3. stringMLST.py --getMLST
 
-Synopsis:  
+Synopsis:
 stringMLST.py --getMLST --species= <species> [-k kmer length] [-P DB prefix]
 
 Required arguments
 --getMLST
     Identifier for getMLST module
 --species= <species name>
-    Species name from the pubMLST schemes (use --schemes to get list of available schemes)
-    "all" will download and build all 
+    Species name from the pubMLST schemes (use "--species show" to get list of available schemes)
+    "all" will download and build all
 
 Optional arguments
 -k = <kmer length>
@@ -355,12 +355,12 @@ NA10831_ATCACG_L002_R1_001.fastq.gz
 
 #### Included databases and automated retrieval of databases from pubMLST
 
-stringMLST includes all the pubMLST databases as of **February 15, 2017**, built with the default kmer (*35*). They can be found in the `datasets/` folder.  
+stringMLST includes all the pubMLST databases as of **February 15, 2017**, built with the default kmer (*35*). They can be found in the `datasets/` folder.
 Simply unzip the databases you need and begin using stringMSLT as described below.
 
 All the databases from pubMLST can be downloaded and prepared with your kmer choice
 
-*Getting all pubMLST schemes*  
+*Getting all pubMLST schemes*
 ```
 stringMLST.py --getMLST -P datasets/ --species all
 ```
@@ -368,14 +368,14 @@ stringMLST.py --getMLST -P datasets/ --species all
 
 Individual databases from pubMLST can also be downloaded as needed, using the scheme identifiers
 
-*Downloading a scheme*  
+*Downloading a scheme*
 ```
 # List available schemes
 stringMLST.py --getMLST --schemes
 
 # Download the Neisseria spp. scheme
 
-stringMLST.py --getMLST -P datasets/nmb --species neisseria
+stringMLST.py --getMLST -P datasets/nmb --species Neisseria
 
 ```
 
@@ -393,7 +393,7 @@ E.g.:
 
 Species of interest: Neisseria spp.
 Corresponding definition file: http://pubmlst.org/data/profiles/neisseria.txt
-Corresponding multi fasta locus files: 
+Corresponding multi fasta locus files:
 http://pubmlst.org/data/alleles/neisseria/abcZ.tfa
 http://pubmlst.org/data/alleles/neisseria/adk.tfa
 http://pubmlst.org/data/alleles/neisseria/aroE.tfa
@@ -425,7 +425,7 @@ TTTGATACCGTTGCGAA...
 TTTGATACCGTTGCCAA...
 ```
 
-These files can be obtained from PubMLST/BIGSdb or can be create by the user themselves. 
+These files can be obtained from PubMLST/BIGSdb or can be create by the user themselves.
 
 In either case, an accompanying configuration file is also required to describe the profile definition and allele sequence files. An example configuration file is shown below:
 ```
@@ -444,7 +444,7 @@ profile /data/home/stringMLST/pubmlst/Neisseria_sp/neisseria.txt
 
 This file is pre-packed on stringMLSTs website and can easily be created by the user for custom database.
 
-#### Database Building 
+#### Database Building
 The next step is for database building is running the buildDB module to create the database files. buildDB module requires the user to specify the config file. The default k-mer size is 35 but can be changed using the -k option. Specifying the prefix for the created database files is optional but is recommended.
 
 The choice of k-mer depends on the size of the sequencing read. In general, the value of k can never be greater than the read length. The application has been tested on a number of read lengths ranging from 55 to 150 bps using k-mer sizes of 21 to 66. In our testing, the k-mer size does not affect the accuracy of the read length. A smaller k-mer size will increase the runtime and a larger k-mer size will increase the file size. The user should ideally pick a k-mer with a length around half of the average read length. For lower quality data, it also advised to choose smaller k-mer values to reduce false hits.
@@ -463,16 +463,16 @@ This command will produce 3 database files and a log file. The log file is used 
 For the example above, the following files will be created:
 NM_35.txt, NM_weight.txt and NM_profile.txt
 
-Please note that in the prediction routine the database is identified with the prefix. 
+Please note that in the prediction routine the database is identified with the prefix.
 
 ST discovery routine
-As discussed earlier, StringMLST has 3 running modes 
+As discussed earlier, StringMLST has 3 running modes
 * Single sample mode - for running stringMLST on a single sample
 * Batch mode - for running stringMLST on all the FASTQ files present in a directory
 * List mode - for running stringMLST on all the FASTQ files provided in a list file
 
-####  Single sample mode: 
-This is the default mode for stringMLST and takes in one sample at a time. The sample can be single-end or paired-end. The sample has to be in FASTQ format. In order to run, the user should know the prefix of the database created and the k-mer size. 
+####  Single sample mode:
+This is the default mode for stringMLST and takes in one sample at a time. The sample can be single-end or paired-end. The sample has to be in FASTQ format. In order to run, the user should know the prefix of the database created and the k-mer size.
 
 By default, the tool expects paired-end samples.
 ```
@@ -482,7 +482,7 @@ stringMLST.py --predict -1 <paired-end file 1> -2 <paired-end file 2> -p --prefi
 ```
 stringMLST.py --predict -1 <single-end file> -s --prefix <prefix for the database> -k <k-mer size> -o <output file name>
 ```
-####  Batch Mode: 
+####  Batch Mode:
 This mode can be used for processing multiple files with one command. All the samples will be queried against the same database. Also all samples should be in the same directory. All the samples will be treated either as single-end or paired-end. The paired-end samples should be differentiated with the character _1 and _2 at the end (E.g.: sampleX_1.fastq and sampleX_2.fastq).
 
 *Paired-end samples:*
@@ -494,7 +494,7 @@ stringMLST.py --predict -d <directory for samples> -p --prefix <prefix for the d
 ```
 stringMLST.py --predict -d <directory for samples> -s --prefix <prefix for the database> -k <k-mer size> -o <output file name>
 ```
-#### List Mode: 
+#### List Mode:
 This mode could be used if user has samples at different locations or if the paired-end samples are not stored in traditional way. All the samples will be queried against the same database. All the samples will be treated either as single-end or paired-end. This mode requires the user to provide a list file which has the list of all samples along with the location. Each line in the list file represents a new sample.
 A sample list file for single-end sample looks like the following.
 ```
@@ -533,7 +533,7 @@ stringMLST provides two, complimentary methods for determining confidence in an 
 
 stringMLST determines an allele based on its kmer support; the more kmers seen for allele 1, the more likely that allele 1 is the allele present in the genome. Unlike SRST2 and other mapping/BLAST based tools, stringMLST always infers an ST, using the maximimally supported allele (allele with most kmer hits). The difference between the maximum support (the reported allele) and the second support (next closest allele) can be informative for low coverage reads. The `-z|--fuzzy` threshold (Default = 300), assigns significance to the difference between supports. Much like SRST2 and Torsten Seemann's popular [pubMLST script](https://github.com/tseemann/mlst), stringMLST reports potentially new or closely supported alleles in allele* syntax. For high coverage reads, we suggest a fuzzy threshold >500. For low coverage reads, a fuzzy threshold of <50.
 
-Coverage mode requires `bedtools`, `bwa`, and `samtools` in your PATH and an additional python module, `pyfaidx` (See the dependencies section for installion information).  Coverage mode by default disables display of fuzzy alleles in favor of sequence coverage information made by mapping potential reads to the putative allele sequence. In our testing, coverage mode slightly increases prediction time (<1 sec increase per sample). 
+Coverage mode requires `bedtools`, `bwa`, and `samtools` in your PATH and an additional python module, `pyfaidx` (See the dependencies section for installion information).  Coverage mode by default disables display of fuzzy alleles in favor of sequence coverage information made by mapping potential reads to the putative allele sequence. In our testing, coverage mode slightly increases prediction time (<1 sec increase per sample).
 
 **Please note:** stringMLST *always* infers the ST from the reads, fuzzy matches and/or <100% coverage do not necessarily mean a new allele has been found.
 
@@ -546,7 +546,7 @@ stringMLST.py --predict -1 <paired-end file 1> -2 <paired-end file 2> -p --prefi
 stringMLST.py --predict -1 <paired-end file 1> -2 <paired-end file 2> -p --prefix <prefix for the database> -k <k-mer size> -r -o <output file name>- -f 50
 ```
 
-#### Other Examples : 
+#### Other Examples :
 
 *Reporting time along with the output.*
 ```
