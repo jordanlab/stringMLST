@@ -15,7 +15,7 @@ try:
 except ImportError:
     from urllib import urlopen, urlretrieve
 import argparse
-version = """ stringMLST v0.6.2 (updated : March, 5 2019) """
+version = """ stringMLST v0.6.3 (updated : September 02, 2020) """
 """
 
 stringMLST free for academic users and requires permission before any commercial
@@ -265,7 +265,7 @@ def get_links(xmlData, savePath, speciesName):
                 for database in mlst:
                     for child in database:
                         if child.tag == "profiles":
-                            profileURL = child[1].text
+                            profileURL = child[0].text
                         if child.tag == "loci":
                             for locus in child:
                                 lociList[locus.text.rstrip()] = locus[0].text
